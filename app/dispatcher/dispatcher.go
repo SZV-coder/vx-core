@@ -352,17 +352,21 @@ func (p *Dispatcher) logUserError(ctx context.Context, info *session.Info, err e
 }
 
 func (p *Dispatcher) logRoute(ctx context.Context, info *session.Info, handler i.Outbound, flow bool) {
+	tag := ""
+	if handler != nil {
+		tag = handler.Tag()
+	}
 	if p.UserLogger != nil {
-		p.UserLogger.LogRoute(info, handler.Tag())
+		p.UserLogger.LogRoute(info, tag)
 	}
 	if flow {
-		log.Ctx(ctx).Debug().Str("dst", info.Target.String()).Str("out_tag", handler.Tag()).
+		log.Ctx(ctx).Debug().Str("dst", info.Target.String()).Str("out_tag", tag).
 			Str("net", info.Target.Network.String()).Str("in_tag", info.InboundTag).
 			Str("src", info.Source.String()).Str("sniffed_domain", info.SniffedDomain).
 			Str("app", info.AppId).Str("protocol", info.Protocol).Msg("flow info")
 	} else {
 		log.Ctx(ctx).Debug().Str("udp src", info.Source.String()).Str("inbound", info.InboundTag).
-			Str("sniff", info.SniffedDomain).Str("dst", info.Target.String()).Str("outbound", handler.Tag()).
+			Str("sniff", info.SniffedDomain).Str("dst", info.Target.String()).Str("outbound", tag).
 			Str("app", info.AppId).Str("protocol", info.Protocol).Msg("packetconn info")
 	}
 }
