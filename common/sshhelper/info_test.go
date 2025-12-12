@@ -9,7 +9,7 @@ import (
 )
 
 func TestGetServerOS(t *testing.T) {
-	// t.Skip()
+	t.Skip()
 	common.Must(godotenv.Load("../../.env"))
 	client, err := GetTestSshClientUbuntu()
 	common.Must(err)

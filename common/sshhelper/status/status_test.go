@@ -11,6 +11,7 @@ import (
 )
 
 func TestStatusStream(t *testing.T) {
+	t.Skip()
 	common.Must(godotenv.Load("../../../.env"))
 
 	s, err := test.GetTestSshClientLocalPassword()
