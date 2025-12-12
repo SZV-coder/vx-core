@@ -81,7 +81,21 @@ jobs:
           files: |
             x_win_x86_64.zip
             x_win_arm64.zip
-
+            
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger vx-service workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}  # Personal Access Token with repo scope
+          repository: 5VNetwork/vx-service  # Your vx-service repository
+          event-type: tag-pushed
+          client-payload: |
+            {
+              "tag": "${{ github.ref_name }}",
+              "sha": "${{ github.sha }}"
+            }
   # build-win:
   #   runs-on: windows-latest
   #   steps:
