@@ -41,7 +41,7 @@ func (t *tunAdapter) WritePacket(pkt *buf.Buffer) error {
 }
 
 func (t *tunAdapter) ReadPacket() (*buf.Buffer, error) {
-	b := buf.New()
+	b := buf.NewWithSize(int32(t.TunOption.Mtu))
 	var sizeArray [1]int
 	_, err := t.device.Read([][]byte{b.BytesTo(b.Cap())}, sizeArray[:], 0)
 	if err != nil {
