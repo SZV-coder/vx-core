@@ -11,7 +11,7 @@ import (
 const (
 	Offset = 60
 	// default buffer BufferSize
-	BufferSize = 2048
+	BufferSize = 1024 * 8
 	// available to write.
 	Size = BufferSize - Offset
 )
