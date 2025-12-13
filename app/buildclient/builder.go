@@ -3,6 +3,7 @@ package buildclient
 import (
 	"context"
 	"fmt"
+	"path"
 	"reflect"
 	"runtime"
 	"sync"
@@ -94,7 +95,8 @@ func NewX(config *configs.TmConfig, opts ...Option) (*client.Client, error) {
 		if config.Log.LogLevel == configs.Level_DEBUG {
 			interval = time.Second * 1
 		}
-		monitor := memmon.NewMonitor(interval)
+		dir := path.Dir(config.RedirectStdErr)
+		monitor := memmon.NewMonitor(interval, dir)
 		builder.requireFeature(func(d *dispatcher.Dispatcher) {
 			monitor.Dispatcher = d
 		})

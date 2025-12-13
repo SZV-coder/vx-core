@@ -3,7 +3,10 @@ package memmon
 import (
 	"net/http"
 	_ "net/http/pprof"
+	"os"
+	"path/filepath"
 	"runtime"
+	"runtime/pprof"
 	"time"
 
 	"github.com/5vnetwork/vx-core/app/dispatcher"
@@ -17,13 +20,15 @@ type Monitor struct {
 	Dispatcher *dispatcher.Dispatcher
 	done       *done.Instance
 	Interval   time.Duration
+	Path       string
 }
 
-func NewMonitor(interval time.Duration) *Monitor {
+func NewMonitor(interval time.Duration, path string) *Monitor {
 
 	return &Monitor{
 		done:     done.New(),
 		Interval: interval,
+		Path:     path,
 	}
 }
 
@@ -72,6 +77,9 @@ func (mon *Monitor) log() {
 			if (m.Alloc+m.StackInuse > 25*1024*1024) && runtime.GOOS == "ios" {
 				log.Debug().Msg("Memory threshold exceeded, forcing GC")
 				runtime.GC()
+				if zerolog.GlobalLevel() == zerolog.DebugLevel {
+					TakeHeapSnapshot(mon.Path)
+				}
 			}
 		}
 	}
@@ -99,4 +107,21 @@ func Log() {
 		log.Debug().Msg("Memory threshold exceeded, forcing GC")
 		runtime.GC()
 	}
+}
+
+// TakeHeapSnapshot saves current heap profile to file
+func TakeHeapSnapshot(dir string) (string, error) {
+	filename := filepath.Join(dir, "heap-"+time.Now().Format("20060102-150405")+".prof")
+	f, err := os.Create(filename)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	if err := pprof.WriteHeapProfile(f); err != nil {
+		return "", err
+	}
+
+	log.Info().Str("file", filename).Msg("Heap snapshot saved")
+	return filename, nil
 }
