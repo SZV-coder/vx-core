@@ -343,13 +343,7 @@ func (a *Api) ServerConfig(ctx context.Context, req *ServerConfigRequest) (*Serv
 
 	sshClient := sshClientCache.client
 
-	err = sshClient.DownloadRemoteFileToLocal("/usr/local/etc/vx/config.json", "/tmp/vx_config.json")
-	if err != nil {
-		return nil, err
-	}
-	defer os.Remove("/tmp/vx_config.json")
-
-	configBytes, err := os.ReadFile("/tmp/vx_config.json")
+	configBytes, err := sshClient.DownloadRemoteFileToMemory("/usr/local/etc/vx/config.json")
 	if err != nil {
 		return nil, err
 	}

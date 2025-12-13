@@ -1,6 +1,7 @@
 package sshhelper
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/fs"
@@ -303,4 +304,24 @@ func (c *Client) DownloadRemoteFileToLocal(remotePath, localPath string) error {
 	}
 
 	return nil
+}
+
+func (c *Client) DownloadRemoteFileToMemory(remotePath string) ([]byte, error) {
+	client, err := c.GetSftpClient()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get sftp client: %w", err)
+	}
+
+	srcFile, err := client.Open(remotePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open remote file: %w", err)
+	}
+	defer srcFile.Close()
+
+	buffer := &bytes.Buffer{}
+	if _, err = io.Copy(buffer, srcFile); err != nil {
+		return nil, fmt.Errorf("failed to copy file: %w", err)
+	}
+
+	return buffer.Bytes(), nil
 }
