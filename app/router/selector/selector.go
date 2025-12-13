@@ -440,6 +440,9 @@ func (s *leastPingStrategy) Select(handlers []outHandler) []outHandler {
 				}
 			}
 		}
+		if best == nil {
+			return nil
+		}
 		return []outHandler{best}
 	}
 }
@@ -467,6 +470,9 @@ func (s *highestThroughputStrategy) Select(handlers []outHandler) []outHandler {
 					break
 				}
 			}
+		}
+		if largest == nil {
+			return nil
 		}
 		return []outHandler{largest}
 	}
