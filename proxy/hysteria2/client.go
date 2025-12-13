@@ -109,17 +109,17 @@ type wrappedClient struct {
 }
 
 func (c *wrappedClient) isActive() bool {
-	if runtime.GOOS == "ios" {
-		if time.Now().Unix()-c.lastActiveTime.Load() < 5 {
-			log.Debug().Int32("id", c.id).Msg("hys client active")
-			return true
-		}
-	} else {
-		if time.Now().Unix()-c.lastActiveTime.Load() < c.idle {
-			log.Debug().Int32("id", c.id).Msg("hys client active")
-			return true
-		}
+	// if runtime.GOOS == "ios" {
+	// 	if time.Now().Unix()-c.lastActiveTime.Load() < 5 {
+	// 		log.Debug().Int32("id", c.id).Msg("hys client active")
+	// 		return true
+	// 	}
+	// } else {
+	if time.Now().Unix()-c.lastActiveTime.Load() < c.idle {
+		log.Debug().Int32("id", c.id).Msg("hys client active")
+		return true
 	}
+	// }
 
 	return false
 }
