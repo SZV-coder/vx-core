@@ -15,6 +15,7 @@ import (
 	"github.com/5vnetwork/vx-core/app/tunset"
 	"github.com/5vnetwork/vx-core/app/util"
 	"github.com/5vnetwork/vx-core/common/protocol/tls/cert"
+	"github.com/5vnetwork/vx-core/common/redirect"
 	"github.com/5vnetwork/vx-core/transport/security/tls"
 	"github.com/5vnetwork/vx-core/tun"
 	"github.com/5vnetwork/vx-core/tun/netmon"
@@ -43,7 +44,7 @@ func New(configBytes []byte, in Interface,
 	}
 
 	if config.RedirectStdErr != "" {
-		err := RedirectStderr(config.RedirectStdErr)
+		err := redirect.RedirectStderr(config.RedirectStdErr)
 		if err != nil {
 			return nil, fmt.Errorf("failed to redirect stderr: %w", err)
 		}

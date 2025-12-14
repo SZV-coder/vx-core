@@ -32,7 +32,7 @@ func transformReadError(err error, setting *copySetting) error {
 		}
 		return nil
 	}
-	return readError{err}
+	return ReadError{err}
 }
 
 func copyRW(reader Reader, writer Writer, setting *copySetting) error {
@@ -43,7 +43,7 @@ func copyRW(reader Reader, writer Writer, setting *copySetting) error {
 				handler(buffer)
 			}
 			if werr := writer.WriteMultiBuffer(buffer); werr != nil {
-				return writeError{werr}
+				return WriteError{werr}
 			}
 		}
 		if err != nil {
@@ -113,47 +113,47 @@ func OnEndCopyOption(f func()) CopyOption {
 	}
 }
 
-type readError struct {
+type ReadError struct {
 	error
 }
 
-func (e readError) Error() string {
+func (e ReadError) Error() string {
 	return "readError: " + e.error.Error()
 }
 
-func (e readError) Inner() error {
+func (e ReadError) Inner() error {
 	return e.error
 }
 
-func (e readError) Unwrap() error {
+func (e ReadError) Unwrap() error {
 	return e.error
 }
 
 // IsReadError returns true if the error in Copy() comes from reading.
 func IsReadError(err error) bool {
-	_, ok := err.(readError)
+	_, ok := err.(ReadError)
 	return ok
 }
 
-type writeError struct {
+type WriteError struct {
 	error
 }
 
-func (e writeError) Error() string {
+func (e WriteError) Error() string {
 	return "writeError: " + e.error.Error()
 }
 
-func (e writeError) Inner() error {
+func (e WriteError) Inner() error {
 	return e.error
 }
 
-func (e writeError) UnWrap() error {
+func (e WriteError) UnWrap() error {
 	return e.error
 }
 
 // IsWriteError returns true if the error in Copy() comes from writing.
 func IsWriteError(err error) bool {
-	_, ok := err.(writeError)
+	_, ok := err.(WriteError)
 	return ok
 }
 

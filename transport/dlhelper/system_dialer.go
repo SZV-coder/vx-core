@@ -112,6 +112,9 @@ func (d *DefaultSystemDialer) DialConn(ctx context.Context, raddr net1.Destinati
 			error: err,
 		}
 	}
+
+	log.Ctx(ctx).Debug().Any("laddr", conn.LocalAddr()).Msg("dial ok")
+
 	if sockopt != nil && (sockopt.StatsReadCounter != nil || sockopt.StatsWriteCounter != nil) {
 		conn = net1.NewStatsConn(conn, sockopt.StatsReadCounter, sockopt.StatsWriteCounter)
 	}

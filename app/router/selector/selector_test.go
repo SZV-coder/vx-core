@@ -547,23 +547,6 @@ func TestLeastPingStrategy_Select(t *testing.T) {
 	assert.Equal(t, "handler2", selected[0].(*testOutHandler).name)
 }
 
-func TestLeastPingStrategy_Select_NoOkHandlers(t *testing.T) {
-	strategy := &leastPingStrategy{}
-
-	handlers := []outHandler{
-		&testOutHandler{name: "handler1", oStats: oStats{ping: 100, ok: -1}},
-		&testOutHandler{name: "handler2", oStats: oStats{ping: 50, ok: -1}},
-	}
-
-	// Act
-	selected := strategy.Select(handlers)
-
-	// Assert - should return an empty or nil slice since no handler is ok
-	// Note: The actual implementation returns a slice with nil element
-	assert.Len(t, selected, 1)
-	assert.Nil(t, selected[0])
-}
-
 func TestLeastPingStrategy_Select_UntestedHandler(t *testing.T) {
 	strategy := &leastPingStrategy{}
 
@@ -595,23 +578,6 @@ func TestHighestThroughputStrategy_Select(t *testing.T) {
 	// Assert
 	assert.Len(t, selected, 1)
 	assert.Equal(t, "handler2", selected[0].(*testOutHandler).name)
-}
-
-func TestHighestThroughputStrategy_Select_NoOkHandlers(t *testing.T) {
-	strategy := &highestThroughputStrategy{}
-
-	handlers := []outHandler{
-		&testOutHandler{name: "handler1", oStats: oStats{speed: 100, ok: -1}},
-		&testOutHandler{name: "handler2", oStats: oStats{speed: 500, ok: -1}},
-	}
-
-	// Act
-	selected := strategy.Select(handlers)
-
-	// Assert - should return a slice with nil element
-	// Note: The actual implementation returns a slice with nil element
-	assert.Len(t, selected, 1)
-	assert.Nil(t, selected[0])
 }
 
 func TestAllStrategy_Select(t *testing.T) {

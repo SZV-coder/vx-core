@@ -33,3 +33,4 @@ Dockerfile
 image.tar
 wfp/
 **/.DS_Store
+test_results.txt

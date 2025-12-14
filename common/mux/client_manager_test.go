@@ -10,7 +10,6 @@ import (
 	"github.com/5vnetwork/vx-core/common/net"
 	"github.com/5vnetwork/vx-core/common/pipe"
 	"github.com/5vnetwork/vx-core/common/signal/done"
-	"github.com/5vnetwork/vx-core/test"
 	"github.com/5vnetwork/vx-core/test/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -91,7 +90,6 @@ func TestClientManager_Create_WithError(t *testing.T) {
 }
 
 func TestClientManager_HandleReaderWriter_NewClient(t *testing.T) {
-	test.InitZeroLog()
 	manager := NewClientManager(DefaultClientStrategy, &mocks.LoopbackHandler{})
 	manager.Start()
 	defer manager.Close()

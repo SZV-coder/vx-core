@@ -37,9 +37,7 @@ func Relay(ctx context.Context, leftReader buf.Reader, leftWriter buf.Writer,
 			)
 		}
 		if err != nil {
-			if context.Cause(ctx) != errors.ErrIdle {
-				err = errors.NewLeftToRightError(err)
-			}
+			err = errors.NewLeftToRightError(err)
 		}
 		return err
 	}

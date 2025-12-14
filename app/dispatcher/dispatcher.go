@@ -328,8 +328,12 @@ func (p *Dispatcher) idle(ctx context.Context, info *session.Info, rw interface{
 }
 
 func (p *Dispatcher) canFallback(ctx context.Context, info *session.Info, err error) bool {
-	if !errors.Is(ctx.Err(), context.Canceled) && !errors.Is(err, context.Canceled) &&
-		!errors.Is(err, errors.LeftToRightError{}) {
+	if !errors.Is(ctx.Err(), context.Canceled) && !errors.Is(err, context.Canceled) {
+		// this means the problem occur on the left
+		if (errors.Is(err, errors.LeftToRightError{}) && errors.Is(err, buf.ReadError{})) ||
+			(errors.Is(err, errors.RightToLeftError{}) && buf.IsWriteError(err)) {
+			return false
+		}
 		return p.StatsPolicy.CalculateSessionStats() && info.SessionUpCounter.Load() == 0
 	}
 	return false
@@ -342,9 +346,15 @@ func (p *Dispatcher) logUserError(ctx context.Context, info *session.Info, err e
 		} else if err == router.ErrNoHandler {
 			p.UserLogger.LogRoute(info, "")
 		} else {
-			if p.StatsPolicy.CalculateSessionStats() &&
-				(info.SessionDownCounter.Load() == 0 || info.SessionUpCounter.Load() == 0) &&
-				!errors.As(err, &errors.LeftToRightError{}) {
+			if !p.StatsPolicy.CalculateSessionStats() ||
+				(info.SessionDownCounter.Load() == 0 || info.SessionUpCounter.Load() == 0) {
+				// udp idle is not considered an error
+				if info.Target.Network == mynet.Network_UDP && errors.Is(err, errors.ErrIdle) {
+					return
+				}
+				if errors.Is(err, io.EOF) {
+					return
+				}
 				p.UserLogger.LogSessionError(info, err)
 			}
 		}

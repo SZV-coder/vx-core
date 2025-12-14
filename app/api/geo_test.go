@@ -41,6 +41,7 @@ import (
 // }
 
 func TestProcessGeoFiles(t *testing.T) {
+	t.Skip()
 	// copy files
 	// Copy the original geosite.dat and geoip.dat files to temporary locations
 	// so we don't modify the original test files

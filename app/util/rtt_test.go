@@ -12,7 +12,7 @@ import (
 
 func TestRttTest(t *testing.T) {
 	dest := net.AddressPort{
-		Address: net.ParseAddress("dbfnjsnc.kobvlq.vvvvv.cloud"),
+		Address: net.ParseAddress("www.google.com"),
 		Port:    net.Port(443),
 	}
 

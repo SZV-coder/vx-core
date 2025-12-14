@@ -18,9 +18,7 @@ func Relay(ctx context.Context, info *session.Info, left, right any) error {
 			closeWriter.CloseWrite()
 		}
 		if err != nil {
-			if context.Cause(ctx) != errors.ErrIdle {
-				err = errors.NewLeftToRightError(err)
-			}
+			err = errors.NewLeftToRightError(err)
 		}
 		return err
 	}
