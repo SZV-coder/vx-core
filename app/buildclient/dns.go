@@ -3,6 +3,7 @@ package buildclient
 import (
 	"context"
 	"fmt"
+	"math/rand/v2"
 	"net"
 	"reflect"
 	"runtime"
@@ -63,8 +64,9 @@ func NewDNS(config *configs.TmConfig, fc *Builder, client *client.Client) error 
 				dailer = transport.DefaultDialer
 			}
 			// dns server for direct
-			ctx := inbound.ContextWithInboundTag(log.With().Str("tag", "internal-dns-direct").
-				Logger().WithContext(context.Background()), "internal-dns-direct")
+			ctx := inbound.ContextWithInboundTag(
+				log.With().Str("tag", "internal-dns-direct").Logger().WithContext(
+					inbound.ContextWithID(context.Background(), rand.Uint32())), "internal-dns-direct")
 			dis := pd.NewPacketDispatcher(ctx, h)
 			internalDnsDirect := idns.NewDnsServerConcurrent(idns.DnsServerConcurrentOption{
 				Name:       "internal-dns-direct",
@@ -82,8 +84,9 @@ func NewDNS(config *configs.TmConfig, fc *Builder, client *client.Client) error 
 					Port:    53,
 				},
 			}, dailer)
-			ctx = inbound.ContextWithInboundTag(log.With().Str("tag", "internal-dns-proxy").
-				Logger().WithContext(context.Background()), "internal-dns-proxy")
+			ctx = inbound.ContextWithInboundTag(
+				log.With().Str("tag", "internal-dns-proxy").Logger().WithContext(
+					inbound.ContextWithID(context.Background(), rand.Uint32())), "internal-dns-proxy")
 			dis = pd.NewPacketDispatcher(ctx, h,
 				// pd.WithRequestTimeout(time.Second*4),
 				pd.WithResponseTimeout(time.Second*8),
@@ -178,8 +181,8 @@ func newDnsServer(config *configs.DnsServerConfig, handler i.Handler, ipToDomain
 				Port:    common.Must2(mynet.PortFromString(port)).(mynet.Port),
 			})
 		}
-		ctx := inbound.ContextWithInboundTag(log.With().Str("tag", config.Name).
-			Logger().WithContext(context.Background()), config.Name)
+		ctx := inbound.ContextWithInboundTag(log.With().Str("tag", config.Name).Logger().WithContext(
+			inbound.ContextWithID(context.Background(), rand.Uint32())), config.Name)
 		dis := pd.NewPacketDispatcher(ctx,
 			handler,
 			// pd.WithRequestTimeout(time.Second*4),
@@ -209,8 +212,9 @@ func newDnsServer(config *configs.DnsServerConfig, handler i.Handler, ipToDomain
 				Port:    common.Must2(mynet.PortFromString(port)).(mynet.Port),
 			})
 		}
-		ctx := inbound.ContextWithInboundTag(log.With().Str("tag", config.Name).
-			Logger().WithContext(context.Background()), config.Name)
+		ctx := inbound.ContextWithInboundTag(
+			log.With().Str("tag", config.Name).Logger().WithContext(
+				inbound.ContextWithID(context.Background(), rand.Uint32())), config.Name)
 		dis := pd.NewPacketDispatcher(ctx,
 			handler,
 			// pd.WithRequestTimeout(time.Second*4),
