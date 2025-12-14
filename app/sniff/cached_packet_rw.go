@@ -11,6 +11,7 @@ import (
 type CachedPacketConn struct {
 	udp.PacketReaderWriter
 
+	interval time.Duration
 	readLock sync.Mutex
 	waitCh   chan readResult
 
@@ -43,7 +44,7 @@ func (r *CachedPacketConn) read(b []byte) (copied bool, len int, err error) {
 		}()
 	}
 
-	timer := time.NewTimer(time.Millisecond * 100)
+	timer := time.NewTimer(r.interval)
 	defer timer.Stop()
 	select {
 	case <-timer.C:

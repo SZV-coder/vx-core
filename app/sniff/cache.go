@@ -1,6 +1,9 @@
 package sniff
 
 import (
+	"errors"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/5vnetwork/vx-core/common/buf"
@@ -12,15 +15,24 @@ import (
 type CachedConn struct {
 	net.Conn
 
-	mb buf.MultiBuffer
+	mb       buf.MultiBuffer
+	interval time.Duration
 }
 
 // It runs for at most 10 ms
 func (r *CachedConn) cache(b []byte) (copied bool, len int, err error) {
-	r.Conn.SetReadDeadline(time.Now().Add(time.Millisecond * 10))
+	err = r.Conn.SetReadDeadline(time.Now().Add(r.interval))
+	if err != nil {
+		return false, 0, err
+	}
 	buffer := buf.New()
 	num, err := buffer.ReadOnce(r.Conn)
 	r.Conn.SetReadDeadline(time.Time{})
+
+	if err != nil && (errors.Is(err, os.ErrDeadlineExceeded) || strings.Contains(err.Error(), "i/o timeout")) {
+		err = nil
+	}
+
 	if num > 0 {
 		r.mb = append(r.mb, buffer)
 		n := r.mb.Copy(b)
@@ -40,14 +52,23 @@ func (r *CachedConn) toConn() net.Conn {
 
 type CachedRW struct {
 	buf.DdlReaderWriter
-	mb buf.MultiBuffer
+	mb       buf.MultiBuffer
+	interval time.Duration
 }
 
 // It runs for at most 10 ms
 func (r *CachedRW) read(b []byte) (copied bool, len int, err error) {
-	r.DdlReaderWriter.SetReadDeadline(time.Now().Add(time.Millisecond * 10))
+	err = r.DdlReaderWriter.SetReadDeadline(time.Now().Add(r.interval))
+	if err != nil {
+		return false, 0, err
+	}
 	mb, err := r.DdlReaderWriter.ReadMultiBuffer()
 	r.DdlReaderWriter.SetReadDeadline(time.Time{})
+
+	if err != nil && (errors.Is(err, os.ErrDeadlineExceeded) || strings.Contains(err.Error(), "i/o timeout")) {
+		err = nil
+	}
+
 	if !mb.IsEmpty() {
 		r.mb, _ = buf.MergeMulti(r.mb, mb)
 		n := r.mb.Copy(b)
@@ -66,12 +87,13 @@ func (r *CachedRW) returnRw() any {
 
 type CachedDdlPacketConn struct {
 	udp.DdlPacketReaderWriter
-	packets []*udp.Packet
+	packets  []*udp.Packet
+	interval time.Duration
 }
 
 // It runs for at most 10 ms
 func (r *CachedDdlPacketConn) read(b []byte) (copied bool, len int, err error) {
-	r.DdlPacketReaderWriter.SetReadDeadline(time.Now().Add(time.Millisecond * 10))
+	r.DdlPacketReaderWriter.SetReadDeadline(time.Now().Add(r.interval))
 	p, err := r.DdlPacketReaderWriter.ReadPacket()
 	r.DdlPacketReaderWriter.SetReadDeadline(time.Time{})
 	if p != nil {

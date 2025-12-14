@@ -95,7 +95,16 @@ type OnHandlerErrorFunc func(tag string, err error)
 
 func New() *Dispatcher {
 	d := &Dispatcher{
-		Sniffer: sniff.NewSniffer(),
+		Sniffer: sniff.NewSniffer(sniff.SniffSetting{
+			Interval: 10 * time.Millisecond,
+			Sniffers: []sniff.ProtocolSnifferWithNetwork{
+				sniff.TlsSniff,
+				sniff.HTTP1Sniff,
+				sniff.QUICSniff,
+				sniff.BTScniff,
+				sniff.UTPSniff,
+			},
+		}),
 	}
 	return d
 }

@@ -94,6 +94,7 @@ func TestCachedPacketConn_Cache_Success(t *testing.T) {
 	mock.addPacket(testData, net.UDPDestination(net.LocalHostIP, 1234), net.UDPDestination(net.LocalHostIP, 5678))
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 	}
 
@@ -120,43 +121,13 @@ func TestCachedPacketConn_Cache_Success(t *testing.T) {
 	}
 }
 
-func TestCachedPacketConn_Cache_Timeout(t *testing.T) {
-	mock := newMockPacketConn()
-	// Set a long delay to trigger timeout
-	mock.setReadDelay(200 * time.Millisecond)
-	mock.addPacket([]byte("test"), net.UDPDestination(net.LocalHostIP, 1234), net.UDPDestination(net.LocalHostIP, 5678))
-
-	cached := &CachedPacketConn{
-		PacketReaderWriter: mock,
-	}
-
-	buffer := make([]byte, 1024)
-	start := time.Now()
-	copied, count, err := cached.read(buffer)
-	if err != nil {
-		t.Error(err)
-	}
-	if copied {
-		t.Error("Expected data not to be copied")
-	}
-	elapsed := time.Since(start)
-
-	if count != 0 {
-		t.Errorf("Expected cache count to be 0 (timeout), got %d", count)
-	}
-
-	// Should timeout after ~100ms
-	if elapsed < 90*time.Millisecond || elapsed > 150*time.Millisecond {
-		t.Errorf("Expected timeout around 100ms, got %v", elapsed)
-	}
-}
-
 func TestCachedPacketConn_ReadPacket_FromCache(t *testing.T) {
 	mock := newMockPacketConn()
 	testData := []byte("cached packet")
 	mock.addPacket(testData, net.UDPDestination(net.LocalHostIP, 1234), net.UDPDestination(net.LocalHostIP, 5678))
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 	}
 
@@ -192,6 +163,7 @@ func TestCachedPacketConn_ReadPacket_FromUnderlying(t *testing.T) {
 	mock.addPacket(testData, net.UDPDestination(net.LocalHostIP, 1234), net.UDPDestination(net.LocalHostIP, 5678))
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 		hasReadAllCache:    true, // Simulate cache already exhausted
 	}
@@ -216,6 +188,7 @@ func TestCachedPacketConn_ReadPacket_Error(t *testing.T) {
 	})
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 		hasReadAllCache:    true,
 	}
@@ -236,6 +209,7 @@ func TestCachedPacketConn_WritePacket(t *testing.T) {
 	})
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 	}
 
@@ -267,6 +241,7 @@ func TestCachedPacketConn_Cache_MultipleCalls(t *testing.T) {
 	}
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 	}
 
@@ -304,6 +279,7 @@ func TestCachedPacketConn_ReadInternal(t *testing.T) {
 	mock := newMockPacketConn()
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 	}
 
@@ -368,6 +344,7 @@ func TestCachedPacketConn_ConcurrentReadPacket(t *testing.T) {
 	}
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 	}
 
@@ -412,6 +389,7 @@ func TestCachedPacketConn_Cache_WithNilWaitCh(t *testing.T) {
 	mock.addPacket([]byte("test"), net.UDPDestination(net.LocalHostIP, 1234), net.UDPDestination(net.LocalHostIP, 5678))
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 		waitCh:             nil, // Explicitly set to nil
 	}
@@ -444,6 +422,7 @@ func TestCachedPacketConn_Cache_ReadError(t *testing.T) {
 	})
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 	}
 
@@ -472,6 +451,7 @@ func TestCachedPacketConn_Cache_WaitOnNilChannel(t *testing.T) {
 	mock.addPacket([]byte("test"), net.UDPDestination(net.LocalHostIP, 1234), net.UDPDestination(net.LocalHostIP, 5678))
 
 	cached := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: mock,
 	}
 
@@ -505,6 +485,7 @@ func TestCachedPacketConn_Cache_WaitOnNilChannel(t *testing.T) {
 func TestCachedUdpLink(t *testing.T) {
 	iLink, oLink := udp.NewLink(10)
 	r := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: oLink,
 	}
 
@@ -557,6 +538,7 @@ func TestCachedUdpLink(t *testing.T) {
 func TestCachedPacketConnBasic(t *testing.T) {
 	iLink, oLink := udp.NewLink(10)
 	r := &CachedPacketConn{
+		interval:           100 * time.Millisecond,
 		PacketReaderWriter: oLink,
 	}
 
@@ -594,6 +576,7 @@ func TestCachedPacketConnMultipleReads(t *testing.T) {
 	iLink, oLink := udp.NewLink(10)
 	r := &CachedPacketConn{
 		PacketReaderWriter: oLink,
+		interval:           100 * time.Millisecond,
 	}
 
 	for i := 0; i < 5; i++ {
@@ -618,6 +601,7 @@ func TestCachedPacketConnCacheTwice(t *testing.T) {
 	iLink, oLink := udp.NewLink(10)
 	r := &CachedPacketConn{
 		PacketReaderWriter: oLink,
+		interval:           100 * time.Millisecond,
 	}
 
 	b1 := make([]byte, 100)

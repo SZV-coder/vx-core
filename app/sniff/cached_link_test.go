@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"io"
 	"testing"
+	"time"
 
 	"github.com/5vnetwork/vx-core/common/buf"
 	"github.com/5vnetwork/vx-core/common/pipe"
@@ -15,6 +16,7 @@ func TestCachedLink(t *testing.T) {
 	iLink, oLink := pipe.NewLinks(-1, false)
 	r := &CachedReadRw{
 		ReaderWriter: oLink,
+		interval:     100 * time.Millisecond,
 	}
 
 	b1 := make([]byte, 100)
@@ -59,6 +61,7 @@ func TestCachedReadRwBasic(t *testing.T) {
 	iLink, oLink := pipe.NewLinks(-1, false)
 	r := &CachedReadRw{
 		ReaderWriter: oLink,
+		interval:     100 * time.Millisecond,
 	}
 
 	b1 := make([]byte, 100)
@@ -91,6 +94,7 @@ func TestCachedReadRwMultipleReads(t *testing.T) {
 	iLink, oLink := pipe.NewLinks(-1, false)
 	r := &CachedReadRw{
 		ReaderWriter: oLink,
+		interval:     100 * time.Millisecond,
 	}
 
 	for i := 0; i < 5; i++ {
@@ -111,6 +115,7 @@ func TestCachedReadRwCacheTwice(t *testing.T) {
 	iLink, oLink := pipe.NewLinks(-1, false)
 	r := &CachedReadRw{
 		ReaderWriter: oLink,
+		interval:     100 * time.Millisecond,
 	}
 
 	b1 := make([]byte, 100)

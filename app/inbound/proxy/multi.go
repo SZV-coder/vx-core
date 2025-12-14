@@ -7,6 +7,7 @@ import (
 	gotls "crypto/tls"
 	"errors"
 	"slices"
+	"time"
 
 	"github.com/5vnetwork/vx-core/app/create"
 	"github.com/5vnetwork/vx-core/app/inbound/monitor"
@@ -93,7 +94,13 @@ func NewMultiInboundServer(config *configs.MultiProxyInboundConfig, ha i.Handler
 			addr:     &net.TCPAddr{IP: address.IP(), Port: int(port)},
 			connChan: make(chan net.Conn, 128),
 			done:     done.New(),
-			sniffer:  sniff.NewSniffer(),
+			sniffer: sniff.NewSniffer(
+				sniff.SniffSetting{
+					Interval: 100 * time.Millisecond,
+					Sniffers: []sniff.ProtocolSnifferWithNetwork{
+						sniff.TlsSniff,
+					},
+				}),
 		}
 		for _, security := range config.SecurityConfigs {
 			switch s := security.Security.(type) {
@@ -327,13 +334,27 @@ func (m *Multi) process(conn net.Conn) {
 	sni := ""
 	// sniff tls
 	if len(m.securitys) > 0 && !m.securitys[0].always {
+		// read at least once
+		b := buf.New()
+		_, err := b.ReadOnce(conn)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to read from conn")
+			conn.Close()
+			b.Release()
+			return
+		}
+		conn = net.NewMbConn(conn, buf.MultiBuffer{b})
+
 		var result sniff.SniffResult
-		var err error
 		conn, result, err = m.sniffer.SniffConn(context.Background(), conn)
 		if err == nil {
 			if tlsResult, ok := result.(*tls.SniffHeader); ok {
 				sni = tlsResult.Domain()
+			} else {
+				log.Debug().Err(err).Msg("not tls")
 			}
+		} else {
+			log.Debug().Err(err).Msg("failed to sniff")
 		}
 	}
 
@@ -388,6 +409,7 @@ func (m *Multi) process(conn net.Conn) {
 	if err == nil {
 		h1Path = sniffResult.Path()
 	} else {
+		log.Debug().Err(err).Msg("not http1")
 		h2 = protocolHttp.IsHttp2(b.Bytes())
 	}
 

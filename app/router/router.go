@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/netip"
 	"sync/atomic"
+	"time"
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/geo"
@@ -139,7 +140,16 @@ func NewRouter(config *RouterConfig) (*Router, error) {
 			conditions = append(conditions, &DomainMatcher{
 				DomainSet: domainSet,
 				SkipSniff: routerRuleConfig.SkipSniff,
-				Sniffer:   sniff.NewSniffer(),
+				Sniffer: sniff.NewSniffer(sniff.SniffSetting{
+					Interval: 10 * time.Millisecond,
+					Sniffers: []sniff.ProtocolSnifferWithNetwork{
+						sniff.TlsSniff,
+						sniff.HTTP1Sniff,
+						sniff.QUICSniff,
+						sniff.BTScniff,
+						sniff.UTPSniff,
+					},
+				}),
 			})
 		}
 		if len(routerRuleConfig.Networks) > 0 {
@@ -183,7 +193,16 @@ func NewRouter(config *RouterConfig) (*Router, error) {
 				domainMatcher: &DomainMatcher{
 					DomainSet: domainSet,
 					SkipSniff: routerRuleConfig.SkipSniff,
-					Sniffer:   sniff.NewSniffer(),
+					Sniffer: sniff.NewSniffer(
+						sniff.SniffSetting{
+							Interval: 10 * time.Millisecond,
+							Sniffers: []sniff.ProtocolSnifferWithNetwork{
+								sniff.TlsSniff,
+								sniff.HTTP1Sniff,
+								sniff.QUICSniff,
+								sniff.BTScniff,
+								sniff.UTPSniff,
+							}}),
 				},
 				ipMatcher: &IpMatcher{
 					IpSet:      ipSet,

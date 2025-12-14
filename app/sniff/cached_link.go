@@ -11,6 +11,7 @@ import (
 type CachedReadRw struct {
 	buf.ReaderWriter
 
+	interval time.Duration
 	readLock sync.Mutex
 	waitCh   chan readResult
 
@@ -49,7 +50,7 @@ func (r *CachedReadRw) read(b []byte) (copied bool, len int, err error) {
 		}()
 	}
 
-	timer := time.NewTimer(time.Millisecond * 10)
+	timer := time.NewTimer(r.interval)
 	defer timer.Stop()
 	select {
 	case <-timer.C:

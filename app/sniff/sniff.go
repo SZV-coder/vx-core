@@ -27,7 +27,7 @@ type SniffResult interface {
 
 type protocolSniffer func(context.Context, []byte) (SniffResult, error)
 
-type protocolSnifferWithNetwork struct {
+type ProtocolSnifferWithNetwork struct {
 	protocolSniffer protocolSniffer
 	network         net.Network
 	protocol        string
@@ -48,29 +48,54 @@ func newSniffState() sniffState {
 }
 
 type Sniffer struct {
-	sniffers []protocolSnifferWithNetwork
+	sniffers []ProtocolSnifferWithNetwork
+	interval time.Duration
 }
 
 // Adapter functions - created once at package init
 var (
-	sniffHTTP1Fn = func(c context.Context, b []byte) (SniffResult, error) { return http.SniffHTTP1Host(b) }
-	sniffTLSFn   = func(c context.Context, b []byte) (SniffResult, error) { return tls.SniffTLS(b) }
-	sniffQUICFn  = func(c context.Context, b []byte) (SniffResult, error) { return quic.SniffQUIC(b) }
-	sniffBTFn    = func(c context.Context, b []byte) (SniffResult, error) { return bittorrent.SniffBittorrent(b) }
-	sniffUTPFn   = func(c context.Context, b []byte) (SniffResult, error) { return bittorrent.SniffUTP(b) }
+	TlsSniff = ProtocolSnifferWithNetwork{
+		protocolSniffer: func(c context.Context, b []byte) (SniffResult, error) { return tls.SniffTLS(b) },
+		network:         net.Network_TCP,
+		protocol:        "tls",
+	}
+	HTTP1Sniff = ProtocolSnifferWithNetwork{
+		protocolSniffer: func(c context.Context, b []byte) (SniffResult, error) { return http.SniffHTTP1Host(b) },
+		network:         net.Network_TCP,
+		protocol:        "http1",
+	}
+	QUICSniff = ProtocolSnifferWithNetwork{
+		protocolSniffer: func(c context.Context, b []byte) (SniffResult, error) { return quic.SniffQUIC(b) },
+		network:         net.Network_UDP,
+		protocol:        "quic",
+	}
+	BTScniff = ProtocolSnifferWithNetwork{
+		protocolSniffer: func(c context.Context, b []byte) (SniffResult, error) { return bittorrent.SniffBittorrent(b) },
+		network:         net.Network_TCP,
+		protocol:        "bittorrent",
+	}
+	UTPSniff = ProtocolSnifferWithNetwork{
+		protocolSniffer: func(c context.Context, b []byte) (SniffResult, error) { return bittorrent.SniffUTP(b) },
+		network:         net.Network_UDP,
+		protocol:        "bittorrent",
+	}
 )
 
+type SniffSetting struct {
+	Sniffers []ProtocolSnifferWithNetwork
+	Interval time.Duration
+}
+
 // NewSniffer returns the singleton sniffer (zero allocation, thread-safe)
-func NewSniffer() *Sniffer {
-	return &Sniffer{
-		sniffers: []protocolSnifferWithNetwork{
-			{sniffTLSFn, net.Network_TCP, "tls"},        // index 0
-			{sniffQUICFn, net.Network_UDP, "quic"},      // index 1
-			{sniffHTTP1Fn, net.Network_TCP, "http1"},    // index 2
-			{sniffBTFn, net.Network_TCP, "bittorrent"},  // index 3
-			{sniffUTPFn, net.Network_UDP, "bittorrent"}, // index 4
-		},
+func NewSniffer(setting SniffSetting) *Sniffer {
+	s := &Sniffer{
+		sniffers: setting.Sniffers,
+		interval: time.Millisecond * 10,
 	}
+	if setting.Interval != 0 {
+		s.interval = setting.Interval
+	}
+	return s
 }
 
 var errUnknownContent = errors.New("unknown content")
@@ -78,6 +103,7 @@ var errUnknownContent = errors.New("unknown content")
 type cReader interface {
 	// return copied=true if there is new data, and how much data is written into b, and error of the read operation
 	// if there is no new data read, copied is false.
+	// err is the read error if any
 	read(b []byte) (copied bool, len int, err error)
 	returnRw() any
 }
@@ -98,18 +124,22 @@ func (sniffer *Sniffer) Sniff(ctx context.Context, info *session.Info, rw interf
 		if r, ok := rw.(buf.DdlReaderWriter); ok {
 			cReader = &CachedRW{
 				DdlReaderWriter: r,
+				interval:        sniffer.interval,
 			}
 		} else if ddlReaderWriter, ok := rw.(udp.DdlPacketReaderWriter); ok {
 			cReader = &CachedDdlPacketConn{
 				DdlPacketReaderWriter: ddlReaderWriter,
+				interval:              sniffer.interval,
 			}
 		} else if readerWriter, ok := rw.(buf.ReaderWriter); ok {
 			cReader = &CachedReadRw{
+				interval:     sniffer.interval,
 				ReaderWriter: readerWriter,
 			}
 		} else if packetConn, ok := rw.(udp.PacketReaderWriter); ok {
 			cReader = &CachedPacketConn{
 				PacketReaderWriter: packetConn,
+				interval:           sniffer.interval,
 			}
 		} else {
 			return nil, errors.New("unsupported type")
@@ -166,7 +196,8 @@ func (sniffer *Sniffer) Sniff(ctx context.Context, info *session.Info, rw interf
 // SniffConn sniffs a TCP connection
 func (sniffer *Sniffer) SniffConn(ctx context.Context, conn net.Conn) (net.Conn, SniffResult, error) {
 	cachedConn := &CachedConn{
-		Conn: conn,
+		Conn:     conn,
+		interval: sniffer.interval,
 	}
 
 	bytes := bytespool.Alloc(8192)
