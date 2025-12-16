@@ -1,6 +1,8 @@
 package clientgrpc
 
 import (
+	"math"
+	"os"
 	"runtime"
 	"strconv"
 	"sync/atomic"
@@ -8,6 +10,7 @@ import (
 
 	"github.com/5vnetwork/vx-core/app/outbound"
 	"github.com/5vnetwork/vx-core/common/units"
+	"github.com/shirou/gopsutil/process"
 
 	"github.com/5vnetwork/vx-core/i"
 	"github.com/rs/zerolog/log"
@@ -61,6 +64,11 @@ func (s *ClientGrpc) GetStatsStream(in *GetStatsRequest,
 	timer := time.NewTicker(time.Duration(in.Interval) * time.Second)
 	defer timer.Stop()
 
+	prcs, err := process.NewProcess(int32(os.Getpid()))
+	if err != nil {
+		panic(err)
+	}
+
 	sendStats := func() error {
 		st := s.Client.Dispatcher.OutStats
 		st.CleanOldStats()
@@ -78,17 +86,29 @@ func (s *ClientGrpc) GetStatsStream(in *GetStatsRequest,
 		}
 		st.Unlock()
 
+		memory1 := uint64(math.MaxUint64)
+		mi, err := prcs.MemoryInfo()
+		if err != nil {
+			log.Debug().Err(err).Msg("failed to get memory info")
+		} else {
+			memory1 = mi.RSS
+		}
 		runtime.ReadMemStats(&m)
-		err := stream.Send(&StatsResponse{
+		memory2 := m.Sys
+		memory := memory1
+		if memory2 < memory {
+			memory = memory2
+		}
+
+		return stream.Send(&StatsResponse{
 			Connections: s.Client.Dispatcher.Flows.Load() +
 				s.Client.Dispatcher.PacketConns.Load(),
-			Memory: m.Sys,
+			Memory: memory,
 			Stats:  statsList,
 		})
-		return err
 	}
 
-	err := sendStats()
+	err = sendStats()
 	if err != nil {
 		log.Error().Err(err).Msg("failed to send outbound stats response")
 		return err
