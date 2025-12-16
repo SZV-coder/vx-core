@@ -13,9 +13,10 @@ import (
 	"github.com/5vnetwork/vx-core/app/client"
 	configs "github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/dns"
+	"github.com/5vnetwork/vx-core/app/inbound/gvisor"
 	"github.com/5vnetwork/vx-core/app/inbound/reject"
+	"github.com/5vnetwork/vx-core/app/inbound/system"
 	"github.com/5vnetwork/vx-core/app/tunset"
-	"github.com/5vnetwork/vx-core/common"
 	"github.com/5vnetwork/vx-core/common/appid"
 	"github.com/5vnetwork/vx-core/common/protocol/tls/cert"
 	"github.com/5vnetwork/vx-core/transport"
@@ -126,21 +127,24 @@ func (t *tm) CloseInbound() error {
 		return errors.New("client is nil")
 	}
 
-	// exsitingSystemInbound := c.Components.GetComponent(reflect.TypeOf(&system.TunSystemInbound{}))
-	// if exsitingSystemInbound != nil {
-	// 	exsitingSystemInbound.(*system.TunSystemInbound).Close()
-	// 	c.Components.RemoveComponent(exsitingSystemInbound)
-	// }
-
-	// exsitingGvisorInbound := c.Components.GetComponent(reflect.TypeOf(&gvisor.TunGvisorInbound{}))
-	// if exsitingGvisorInbound != nil {
-	// 	exsitingGvisorInbound.(*gvisor.TunGvisorInbound).CloseBlocking()
-	// 	c.Components.RemoveComponent(exsitingGvisorInbound)
-	// }
-
+	var newInbounds []interface{}
 	for _, inbound := range c.Inbounds {
-		common.Must(common.Close(inbound))
+		if sys, ok := inbound.(*system.TunSystemInbound); ok {
+			err := sys.Close()
+			if err != nil {
+				return fmt.Errorf("failed to close tun system inbound: %w", err)
+			}
+		} else if gvisor, ok := inbound.(*gvisor.TunGvisorInbound); ok {
+			err := gvisor.Close()
+			if err != nil {
+				return fmt.Errorf("failed to close tun gvisor inbound: %w", err)
+			}
+		} else {
+			newInbounds = append(newInbounds, inbound)
+		}
 	}
+
+	c.Inbounds = newInbounds
 
 	log.Debug().Msg("close inbound success")
 	return nil
