@@ -13,6 +13,7 @@ import (
 	"github.com/5vnetwork/vx-core/common/net"
 	"github.com/5vnetwork/vx-core/common/serial"
 	"github.com/5vnetwork/vx-core/common/serial/address_parser"
+	S "github.com/5vnetwork/vx-core/common/session"
 	"github.com/5vnetwork/vx-core/i"
 	"github.com/5vnetwork/vx-core/proxy"
 	"github.com/rs/zerolog/log"
@@ -123,6 +124,7 @@ func (d *Server) processCommon(ctx context.Context, conn net.Conn,
 	session := session.NewServerSession(conn, func(stream *session.Stream) {
 		defer stream.Close()
 
+		ctx = S.GetCtx(ctx)
 		address, port, err := address_parser.SocksAddressSerializer.ReadAddressPort(nil, stream)
 		if err != nil {
 			log.Ctx(ctx).Err(err).Msg("ReadAddressPort")

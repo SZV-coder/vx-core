@@ -2,9 +2,9 @@ package inbound
 
 import (
 	"context"
-	"math/rand/v2"
 
 	"github.com/5vnetwork/vx-core/common/net"
+	"github.com/5vnetwork/vx-core/common/session"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,14 +17,6 @@ const (
 	IDKey
 	RawConnKey
 )
-
-func ContextWithID(ctx context.Context, id uint32) context.Context {
-	return context.WithValue(ctx, IDKey, id)
-}
-func IDFromContext(ctx context.Context) (uint32, bool) {
-	id, ok := ctx.Value(IDKey).(uint32)
-	return id, ok
-}
 
 func ContextWithInboundTag(ctx context.Context, tag string) context.Context {
 	return context.WithValue(ctx, InboundTagKey, tag)
@@ -50,14 +42,12 @@ func GatewayFromContext(ctx context.Context) (net.Destination, bool) {
 
 func GetCtx(ctx context.Context, src, gateway net.Destination, tag string) (context.Context, context.CancelCauseFunc) {
 	ctx, cancel := context.WithCancelCause(ctx)
-	id := rand.Uint32()
-	ctx = log.With().Uint32("sid", id).Logger().WithContext(ctx)
+	ctx = session.GetCtx(ctx)
 	ctx = ContextWithInboundTag(ctx, tag)
 	ctx = ContextWithSrc(ctx, src)
 	ctx = ContextWithGateway(ctx, gateway)
-	ctx = ContextWithID(ctx, id)
 	log.Ctx(ctx).Debug().Str("tag", tag).Str("network", src.Network.SystemString()).
-		Str("src", src.String()).Str("gateway", gateway.String()).Msg("new session")
+		Str("src", src.String()).Str("gateway", gateway.String()).Msg("new connection")
 	return ctx, cancel
 }
 

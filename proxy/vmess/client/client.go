@@ -58,7 +58,7 @@ func (h *Client) HandleFlow(ctx context.Context, dst net.Destination, rw buf.Rea
 	}
 	defer conn.Close()
 
-	log.Ctx(ctx).Debug().Str("local addr", conn.LocalAddr().String()).Msg("vmess client dial ok")
+	log.Ctx(ctx).Debug().Any("local addr", conn.LocalAddr()).Msg("vmess client dial ok")
 
 	target := dst
 	if !target.IsValid() {

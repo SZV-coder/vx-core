@@ -117,7 +117,7 @@ func infoFromContext(ctx context.Context, dst net.Destination) *session.Info {
 	info.Source, _ = inbound.SrcFromContext(ctx)
 	info.Gateway, _ = inbound.GatewayFromContext(ctx)
 	info.User, _ = proxy.UserFromContext(ctx)
-	id, _ := inbound.IDFromContext(ctx)
+	id, _ := session.IDFromContext(ctx)
 	info.ID = session.ID(id)
 	return &info
 }

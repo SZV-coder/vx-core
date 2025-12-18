@@ -18,6 +18,33 @@ import (
 // ID of a session. For debugging purpose.
 type ID uint32
 
+type SessionCtxKey int
+
+const (
+	IDKey SessionCtxKey = iota
+)
+
+func ContextWithID(ctx context.Context, id uint32) context.Context {
+	return context.WithValue(ctx, IDKey, id)
+}
+func IDFromContext(ctx context.Context) (uint32, bool) {
+	id, ok := ctx.Value(IDKey).(uint32)
+	return id, ok
+}
+func GetCtx(ctx context.Context) context.Context {
+	oid, ok := IDFromContext(ctx)
+
+	id := rand.Uint32()
+	ctx = ContextWithID(ctx, id)
+	l := log.Ctx(ctx).With().Uint32("sid", id)
+	if ok {
+		l = l.Uint32("oid", oid)
+	}
+
+	ctx = l.Logger().WithContext(ctx)
+	return ctx
+}
+
 // NewID generates a new ID. The generated ID is high likely to be unique, but not cryptographically secure.
 // The generated ID will never be 0.
 func NewID() ID {

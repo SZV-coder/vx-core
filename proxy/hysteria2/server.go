@@ -273,6 +273,7 @@ func (in *Inbound) Connect(addr net.Addr, id string, tx uint64) {
 		counter: user.Counter,
 	}
 }
+
 func (in *Inbound) Disconnect(addr net.Addr, id string, err error) {
 	in.cLock.Lock()
 	defer in.cLock.Unlock()
@@ -290,7 +291,8 @@ type outboundAdapter struct {
 }
 
 func (o *outboundAdapter) TCP(reqAddr string) (net.Conn, error) {
-	log.Debug().Str("target", reqAddr).Msgf("hysteria2 tcp target")
+	ctx := session.GetCtx(context.Background())
+	log.Ctx(ctx).Debug().Str("target", reqAddr).Msgf("hysteria2 tcp session")
 
 	dest, err := mynet.ParseDestination(reqAddr)
 	if err != nil {
@@ -298,20 +300,21 @@ func (o *outboundAdapter) TCP(reqAddr string) (net.Conn, error) {
 	}
 	dest.Network = mynet.Network_TCP
 
-	conn, err := o.Dialer.Dial(context.Background(), dest)
+	conn, err := o.Dialer.Dial(ctx, dest)
 	if err != nil {
 		return nil, err
 	}
-	log.Debug().Str("local", conn.LocalAddr().String()).Str("remote", conn.RemoteAddr().String()).Msgf("hysteria2 tcp dial ok")
 	return conn, nil
 }
 
 func (o *outboundAdapter) UDP(reqAddr string) (server.UDPConn, error) {
-	pc, err := o.PacketListener.ListenPacket(context.Background(), "udp", "")
+	ctx := session.GetCtx(context.Background())
+	log.Ctx(ctx).Debug().Str("target", reqAddr).Msgf("hysteria2 udp session")
+
+	pc, err := o.PacketListener.ListenPacket(ctx, "udp", "")
 	if err != nil {
 		return nil, err
 	}
-	log.Debug().Str("target", reqAddr).Msgf("hysteria2 udp target")
 	return &netUdpConnToServerUDPConn{pc}, nil
 }
 
