@@ -159,10 +159,12 @@ func (d *BindToDefaultNICDialer) ListenPacket(ctx context.Context, network, addr
 		socket.BindToDeviceName = d.defaultNICMonitor.DefaultInterfaceName4()
 		d.socketSetting.Store(socket)
 	}
+	if socket.BindToDevice4 == 0 && socket.BindToDevice6 == 0 && socket.BindToDeviceName == "" {
+		return nil, errors.New("failed to get default nic")
+	}
 	return socket.ListenPacket(ctx, network, address)
 }
 
-// when DefaultInterfaceInfo is nil, LookupIP might return ipv6 address while the default nic does not support ipv6.
 func (d *BindToDefaultNICDialer) Dial(ctx context.Context, dst net1.Destination) (net.Conn, error) {
 	socket := d.socketSetting.Load().(*dlhelper.SocketSetting)
 	if socket.BindToDevice4 != d.defaultNICMonitor.DefaultInterface4() ||
