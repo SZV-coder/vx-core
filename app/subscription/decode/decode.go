@@ -300,7 +300,7 @@ func setProtocol(config *configs.TransportConfig, query url.Values) error {
 					Path: query.Get("path"),
 				},
 			}
-		case "none":
+		case "none", "---":
 			break
 		default:
 			return fmt.Errorf("unknown transport protocol: %s", protocol)
