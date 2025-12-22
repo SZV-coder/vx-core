@@ -50,13 +50,15 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: build --id x-dll --clean --snapshot
+          args: build --id x-dll --id vx-service-exe --id service-install --clean --snapshot
 
       - name: Create Windows AMD64 archive
         run: |
           mkdir -p release
           # Collect amd64 binaries
           cp dist/x-dll_windows_amd64_v1/x.dll release/
+          cp dist/vx-service-exe_windows_amd64_v1/vx_service.exe release/
+          cp dist/service-install_windows_amd64_v1/service_install.exe release/
           # Create zip
           cd release
           7z a -tzip ../x_win_x86_64.zip *
@@ -68,6 +70,8 @@ jobs:
           mkdir -p release
           # Collect arm64 binaries
           cp dist/x-dll_windows_arm64_v8.0/x.dll release/
+          cp dist/vx-service-exe_windows_arm64_v8.0/vx_service.exe release/
+          cp dist/service-install_windows_arm64_v8.0/service_install.exe release/
           # Create zip
           cd release
           7z a -tzip ../x_win_arm64.zip *
@@ -82,20 +86,6 @@ jobs:
             x_win_x86_64.zip
             x_win_arm64.zip
             
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger vx-service workflow
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.TRIGGER_TOKEN }}  # Personal Access Token with repo scope
-          repository: 5VNetwork/vx-service  # Your vx-service repository
-          event-type: tag-pushed
-          client-payload: |
-            {
-              "tag": "${{ github.ref_name }}",
-              "sha": "${{ github.sha }}"
-            }
   # build-win:
   #   runs-on: windows-latest
   #   steps:
