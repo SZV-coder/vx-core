@@ -132,6 +132,32 @@ func NewRouter(config *RouterConfig) (*Router, error) {
 				Resolve:    routerRuleConfig.ResolveDomain,
 			})
 		}
+		if len(routerRuleConfig.Protocols) > 0 {
+			sniffers := make([]sniff.ProtocolSnifferWithNetwork, 0, len(routerRuleConfig.Protocols))
+			for _, protocol := range routerRuleConfig.Protocols {
+				switch protocol {
+				case "tls":
+					sniffers = append(sniffers, sniff.TlsSniff)
+				case "http1":
+					sniffers = append(sniffers, sniff.HTTP1Sniff)
+				case "quic":
+					sniffers = append(sniffers, sniff.QUICSniff)
+				case "bittorrent":
+					sniffers = append(sniffers, sniff.BTScniff)
+					sniffers = append(sniffers, sniff.UTPSniff)
+				default:
+					log.Warn().Str("protocol", protocol).Msg("unknown protocol")
+					continue
+				}
+			}
+			conditions = append(conditions, &ConditionProtocol{
+				protocols: routerRuleConfig.Protocols,
+				Sniffer: sniff.NewSniffer(sniff.SniffSetting{
+					Interval: 10 * time.Millisecond,
+					Sniffers: sniffers,
+				}),
+			})
+		}
 		if len(routerRuleConfig.GeoDomains) > 0 || len(routerRuleConfig.DomainTags) > 0 {
 			domainSet, err := geo.NewDomainSet(routerRuleConfig.DomainTags, config.GeoHelper, routerRuleConfig.GeoDomains...)
 			if err != nil {

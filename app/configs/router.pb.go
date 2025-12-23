@@ -298,6 +298,7 @@ type RuleConfig struct {
 	MatchAll      bool     `protobuf:"varint,23,opt,name=match_all,json=matchAll,proto3" json:"match_all,omitempty"`
 	AppTags       []string `protobuf:"bytes,24,rep,name=app_tags,json=appTags,proto3" json:"app_tags,omitempty"`
 	AllTags       []string `protobuf:"bytes,25,rep,name=all_tags,json=allTags,proto3" json:"all_tags,omitempty"`
+	Protocols     []string `protobuf:"bytes,28,rep,name=protocols,proto3" json:"protocols,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -482,6 +483,13 @@ func (x *RuleConfig) GetAppTags() []string {
 func (x *RuleConfig) GetAllTags() []string {
 	if x != nil {
 		return x.AllTags
+	}
+	return nil
+}
+
+func (x *RuleConfig) GetProtocols() []string {
+	if x != nil {
+		return x.Protocols
 	}
 	return nil
 }
@@ -735,7 +743,7 @@ const file_protos_router_proto_rawDesc = "" +
 	"\fRouterConfig\x12#\n" +
 	"\x05rules\x18\x01 \x03(\v2\r.x.RuleConfigR\x05rules\"B\n" +
 	"\x0fSelectorsConfig\x12/\n" +
-	"\tselectors\x18\x01 \x03(\v2\x11.x.SelectorConfigR\tselectors\"\xa0\x06\n" +
+	"\tselectors\x18\x01 \x03(\v2\x11.x.SelectorConfigR\tselectors\"\xbe\x06\n" +
 	"\n" +
 	"RuleConfig\x12!\n" +
 	"\foutbound_tag\x18\x01 \x01(\tR\voutboundTag\x12!\n" +
@@ -762,7 +770,8 @@ const file_protos_router_proto_rawDesc = "" +
 	"\afake_ip\x18\x16 \x01(\bR\x06fakeIp\x12\x1b\n" +
 	"\tmatch_all\x18\x17 \x01(\bR\bmatchAll\x12\x19\n" +
 	"\bapp_tags\x18\x18 \x03(\tR\aappTags\x12\x19\n" +
-	"\ball_tags\x18\x19 \x03(\tR\aallTags\"\xa6\x05\n" +
+	"\ball_tags\x18\x19 \x03(\tR\aallTags\x12\x1c\n" +
+	"\tprotocols\x18\x1c \x03(\tR\tprotocols\"\xa6\x05\n" +
 	"\x0eSelectorConfig\x12\x10\n" +
 	"\x03tag\x18\x01 \x01(\tR\x03tag\x120\n" +
 	"\x06filter\x18\x02 \x01(\v2\x18.x.SelectorConfig.FilterR\x06filter\x12?\n" +

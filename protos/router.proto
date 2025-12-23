@@ -52,7 +52,11 @@ message RuleConfig {
   bool match_all = 23;
   repeated string app_tags = 24;
   repeated string all_tags = 25;
+
+  repeated string protocols = 28;
 }
+
+
 
 message SelectorConfig {
   string tag = 1;

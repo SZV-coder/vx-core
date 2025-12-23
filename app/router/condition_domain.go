@@ -33,11 +33,5 @@ func (m *DomainMatcher) Apply(c context.Context, info *session.Info, rw interfac
 	if info.SniffedDomain != "" {
 		return rw, m.DomainSet.Match(info.SniffedDomain)
 	}
-	// only consider ipToDomain when sniffed but no domain sniffed out to avoid cdn issues:
-	// when the ip is cdn ip, the ipToDomain might be wrong. But if sniff failed to get domain,
-	// the ip is not likely to be cdn ip.
-	// if info.Sniffed && info.IpToDomain != "" {
-	// 	return rw, m.DomainSet.Match(info.IpToDomain)
-	// }
 	return rw, false
 }
