@@ -20,6 +20,8 @@ func ToUrl(outboundConfig *configs.OutboundHandlerConfig) (string, error) {
 		return toShadowSocks(outboundConfig)
 	case *proxy.TrojanClientConfig:
 		return toTrojan(outboundConfig)
+	case *proxy.AnytlsClientConfig:
+		return toAnytls(outboundConfig)
 	case *proxy.VlessClientConfig:
 		return toVless0(outboundConfig)
 	case *proxy.Hysteria2ClientConfig:

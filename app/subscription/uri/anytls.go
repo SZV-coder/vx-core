@@ -9,19 +9,19 @@ import (
 	"github.com/5vnetwork/vx-core/app/configs/proxy"
 )
 
-func toTrojan(outboundConfig *configs.OutboundHandlerConfig) (string, error) {
+func toAnytls(outboundConfig *configs.OutboundHandlerConfig) (string, error) {
 	config, err := outboundConfig.Protocol.UnmarshalNew()
 	if err != nil {
 		return "", err
 	}
-	trojanConfig, _ := config.(*proxy.TrojanClientConfig)
+	anytlsConfig, _ := config.(*proxy.AnytlsClientConfig)
 
 	queryParameters := url.Values{}
 	addQueryParameters(queryParameters, outboundConfig)
 
 	u := &url.URL{
-		Scheme:   "trojan",
-		User:     url.User(trojanConfig.Password),
+		Scheme:   "anytls",
+		User:     url.User(anytlsConfig.Password),
 		Host:     net.JoinHostPort(outboundConfig.Address, strconv.Itoa(getSinglePort(outboundConfig))),
 		RawQuery: queryParameters.Encode(),
 		Fragment: outboundConfig.Tag,

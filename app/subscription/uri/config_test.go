@@ -129,7 +129,7 @@ func TestTrojan(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s1, err := toTrojan0(config)
+	s1, err := toTrojan(config)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,15 +9,6 @@ import (
 	"github.com/5vnetwork/vx-core/common/serial"
 )
 
-// // TrojanConfig represents a Trojan protocol configuration
-// type TrojanConfig struct {
-// 	Secret  string
-// 	Address string
-// 	Port    string
-// 	Remark  string
-// 	Query   map[string]string
-// }
-
 func ParseTrojan(link string) (*configs.OutboundHandlerConfig, error) {
 	u, err := url.Parse(link)
 	if err != nil {
