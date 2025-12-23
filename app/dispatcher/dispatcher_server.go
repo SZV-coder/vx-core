@@ -1,6 +1,12 @@
-//go:build linux && !android && server
+//go:build server
 
 package dispatcher
+
+import (
+	"context"
+
+	"github.com/5vnetwork/vx-core/common/session"
+)
 
 // func (d *Dispatcher) recordlinkStats(ctx context.Context, info *session.Info) {
 // 	linkMetrics, err := net.GetTCPConnectionRTT(info.RawConn)
@@ -26,3 +32,8 @@ package dispatcher
 // 		Uint32("bw", linkMetrics.Bandwidth).
 // 		Uint32("rtt", linkMetrics.Rtt).Msg("link stats")
 // }
+
+// for debug purpose
+func (p *Dispatcher) populateAppId(ctx context.Context, info *session.Info) {
+
+}

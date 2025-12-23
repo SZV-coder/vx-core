@@ -16,7 +16,6 @@ import (
 	"github.com/5vnetwork/vx-core/app/sniff"
 	"github.com/5vnetwork/vx-core/app/user"
 	"github.com/5vnetwork/vx-core/app/userlogger"
-	"github.com/5vnetwork/vx-core/common/appid"
 	"github.com/5vnetwork/vx-core/common/buf"
 	"github.com/5vnetwork/vx-core/common/errors"
 	"github.com/5vnetwork/vx-core/common/mux"
@@ -33,7 +32,6 @@ import (
 	"github.com/5vnetwork/vx-core/proxy"
 	vless_out "github.com/5vnetwork/vx-core/proxy/vless/outbound"
 	"github.com/gorilla/websocket"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -387,20 +385,6 @@ func (p *Dispatcher) logRoute(ctx context.Context, info *session.Info, handler i
 		log.Ctx(ctx).Debug().Str("udp src", info.Source.String()).Str("inbound", info.InboundTag).
 			Str("sniff", info.SniffedDomain).Str("dst", info.Target.String()).Str("outbound", tag).
 			Str("app", info.AppId).Str("protocol", info.Protocol).Msg("packetconn info")
-	}
-}
-
-func (p *Dispatcher) populateAppId(ctx context.Context, info *session.Info) {
-	if info.AppId == "" {
-		if (zerolog.GlobalLevel() == zerolog.DebugLevel) &&
-			(!strings.Contains(info.InboundTag, "dns")) &&
-			!strings.Contains(info.InboundTag, "DNS") {
-			appId, err := appid.GetAppId(ctx, info.Source, &info.Target)
-			if err != nil {
-				log.Ctx(ctx).Debug().Err(err).Msg("failed to get appId")
-			}
-			info.AppId = appId
-		}
 	}
 }
 
