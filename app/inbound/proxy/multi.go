@@ -67,7 +67,7 @@ func NewMultiInboundServer(config *configs.MultiProxyInboundConfig, ha i.Handler
 	for _, port := range ports {
 		if hysteriaConfig != nil {
 			in, err := hysteria2.NewInbound(&hysteria2.InboundConfig{
-				Ports:                 ports,
+				Ports:                 []uint16{port},
 				Hysteria2ServerConfig: hysteriaConfig,
 				InStats:               inStats,
 				Tag:                   config.Tag,

@@ -77,7 +77,7 @@ func NewInboundServer(config *configs.ProxyInboundConfig, ha i.Handler, router i
 		if hysteriaConfig != nil {
 			hasHys = true
 			in, err := hysteria2.NewInbound(&hysteria2.InboundConfig{
-				Ports:                 ports,
+				Ports:                 []uint16{port},
 				Hysteria2ServerConfig: hysteriaConfig,
 				InStats:               inStats,
 				Tag:                   config.Tag,
