@@ -18,6 +18,7 @@ before:
 
 builds:
   - id: vx-service-exe
+    skip: '{{ if eq (index .Env "VX_SERVER") "1" }}true{{ end }}'
     main: ./win_service/x_windows_service
     goos:
       - windows
@@ -46,6 +47,7 @@ builds:
         {{- end }}
 
   - id: service-install
+    skip: '{{ if eq (index .Env "VX_SERVER") "1" }}true{{ end }}'
     main: ./win_service/service
     goos:
       - windows
