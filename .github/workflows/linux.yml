@@ -1,11 +1,11 @@
 name: Build Multi-Platform
 
 on:
-  push:
+  # push:
     # branches:
     #   - main
-    tags:
-      - 'v*'
+    # tags:
+    #   - 'v*'
   # pull_request:
   #   branches:
   #     - main

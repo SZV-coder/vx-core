@@ -1,9 +1,9 @@
 name: Build Windows DLL and EXE
 
 on:
-  push:
-    tags:
-      - "v*"
+  # push:
+    # tags:
+    #   - "v*"
   # for manual trigger
   workflow_dispatch:
 
