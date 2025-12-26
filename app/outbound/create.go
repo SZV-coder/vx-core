@@ -307,10 +307,13 @@ func NewOutHandler(config *Config) (i.Outbound, error) {
 	case *proxyconfigs.AnytlsClientConfig:
 		pc = anytls.NewClient(
 			&anytls.ClientConfig{
-				Address:    address,
-				PortPicker: sp,
-				Password:   m.Password,
-				Dialer:     dialer,
+				Address:                  address,
+				PortPicker:               sp,
+				Password:                 m.Password,
+				Dialer:                   dialer,
+				IdleSessionCheckInterval: time.Duration(m.IdleSessionCheckInterval) * time.Second,
+				IdleSessionTimeout:       time.Duration(m.IdleSessionTimeout) * time.Second,
+				MinIdleSession:           int(m.MinIdleSession),
 			})
 	default:
 		return nil, fmt.Errorf("unknown proxy client config: %v", reflect.TypeOf(m))

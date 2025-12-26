@@ -33,20 +33,32 @@ type Client struct {
 }
 
 type ClientConfig struct {
-	Address    net.Address
-	PortPicker i.PortSelector
-	Password   string
-	Dialer     i.Dialer
+	Address                  net.Address
+	PortPicker               i.PortSelector
+	Password                 string
+	IdleSessionCheckInterval time.Duration
+	IdleSessionTimeout       time.Duration
+	MinIdleSession           int
+	Dialer                   i.Dialer
 }
 
 func NewClient(config *ClientConfig) *Client {
 	c := &Client{
 		ClientConfig: *config,
 	}
+	if config.IdleSessionCheckInterval == 0 {
+		config.IdleSessionCheckInterval = time.Second * 30
+	}
+	if config.IdleSessionTimeout == 0 {
+		config.IdleSessionTimeout = time.Second * 30
+	}
+	if config.MinIdleSession == 0 {
+		config.MinIdleSession = 5
+	}
 	c.secret = sha256.Sum256([]byte(config.Password))
 	c.sessionClient = session.NewClient(context.Background(),
 		c.createOutboundConnection, &padding.DefaultPaddingFactory,
-		time.Second*30, time.Second*30, 5)
+		config.IdleSessionCheckInterval, config.IdleSessionTimeout, config.MinIdleSession)
 	return c
 }
 

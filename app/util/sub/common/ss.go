@@ -1,4 +1,4 @@
-package decode
+package common
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/configs/proxy"
+	"github.com/5vnetwork/vx-core/app/util/sub"
 	"github.com/5vnetwork/vx-core/common/serial"
 	// Add required imports for transport protocols and headers
 	// for http headers
@@ -36,7 +37,7 @@ func ParseSsFromLink(link string) (*configs.OutboundHandlerConfig, error) {
 	var cipher, password string
 	// some ss link is such format: ss://BASE64-ENCODED-STRING-WITHOUT-PADDING#TAG
 	if u.User == nil {
-		decoded, err := DecodeBase64(u.Host)
+		decoded, err := sub.DecodeBase64(u.Host)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode host: %v", err)
 		}
@@ -49,7 +50,7 @@ func ParseSsFromLink(link string) (*configs.OutboundHandlerConfig, error) {
 		password, _ = u.User.Password()
 	} else {
 		cipherPasswordBase64 := u.User.Username()
-		cipherPasswordBytes, err := DecodeBase64(cipherPasswordBase64)
+		cipherPasswordBytes, err := sub.DecodeBase64(cipherPasswordBase64)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode cipher:password: %v", err)
 		}
@@ -63,7 +64,7 @@ func ParseSsFromLink(link string) (*configs.OutboundHandlerConfig, error) {
 	}
 
 	portStr := u.Port()
-	ports := TryParsePorts(portStr)
+	ports := sub.TryParsePorts(portStr)
 	if len(ports) == 0 {
 		return nil, errors.New("port invalid: " + portStr)
 	}
@@ -108,7 +109,7 @@ func ParseSsFromLink0(link string) (*SsConfig, error) {
 	}
 
 	cipherPasswordBase64 := content[:atIndex]
-	cipherPasswordBytes, err := DecodeBase64(cipherPasswordBase64)
+	cipherPasswordBytes, err := sub.DecodeBase64(cipherPasswordBase64)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode cipher:password: %v", err)
 	}

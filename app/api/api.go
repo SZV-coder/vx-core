@@ -20,7 +20,6 @@ import (
 	"github.com/5vnetwork/vx-core/app/outbound"
 	"github.com/5vnetwork/vx-core/app/policy"
 	"github.com/5vnetwork/vx-core/app/subscription"
-	"github.com/5vnetwork/vx-core/app/subscription/decode"
 	"github.com/5vnetwork/vx-core/app/util/downloader"
 	"github.com/5vnetwork/vx-core/app/xsqlite"
 	"github.com/5vnetwork/vx-core/common"
@@ -387,7 +386,7 @@ func (a *Api) UpdateSubscription(ctx context.Context, req *UpdateSubscriptionReq
 }
 
 func (a *Api) Decode(ctx context.Context, req *DecodeRequest) (*DecodeResponse, error) {
-	result, err := decode.Decode(req.Data)
+	result, err := util.Decode(req.Data)
 	if err != nil {
 		return nil, err
 	}

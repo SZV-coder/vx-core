@@ -17,10 +17,13 @@ const (
 )
 
 type AnytlsClientConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	Password                 string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	IdleSessionCheckInterval uint32                 `protobuf:"varint,3,opt,name=idle_session_check_interval,json=idleSessionCheckInterval,proto3" json:"idle_session_check_interval,omitempty"`
+	IdleSessionTimeout       uint32                 `protobuf:"varint,4,opt,name=idle_session_timeout,json=idleSessionTimeout,proto3" json:"idle_session_timeout,omitempty"`
+	MinIdleSession           uint32                 `protobuf:"varint,5,opt,name=min_idle_session,json=minIdleSession,proto3" json:"min_idle_session,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *AnytlsClientConfig) Reset() {
@@ -58,6 +61,27 @@ func (x *AnytlsClientConfig) GetPassword() string {
 		return x.Password
 	}
 	return ""
+}
+
+func (x *AnytlsClientConfig) GetIdleSessionCheckInterval() uint32 {
+	if x != nil {
+		return x.IdleSessionCheckInterval
+	}
+	return 0
+}
+
+func (x *AnytlsClientConfig) GetIdleSessionTimeout() uint32 {
+	if x != nil {
+		return x.IdleSessionTimeout
+	}
+	return 0
+}
+
+func (x *AnytlsClientConfig) GetMinIdleSession() uint32 {
+	if x != nil {
+		return x.MinIdleSession
+	}
+	return 0
 }
 
 type AnytlsServerConfig struct {
@@ -108,9 +132,12 @@ var File_protos_proxy_anytls_proto protoreflect.FileDescriptor
 
 const file_protos_proxy_anytls_proto_rawDesc = "" +
 	"\n" +
-	"\x19protos/proxy/anytls.proto\x12\ax.proxy\x1a\x11protos/user.proto\"0\n" +
+	"\x19protos/proxy/anytls.proto\x12\ax.proxy\x1a\x11protos/user.proto\"\xcb\x01\n" +
 	"\x12AnytlsClientConfig\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"9\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x12=\n" +
+	"\x1bidle_session_check_interval\x18\x03 \x01(\rR\x18idleSessionCheckInterval\x120\n" +
+	"\x14idle_session_timeout\x18\x04 \x01(\rR\x12idleSessionTimeout\x12(\n" +
+	"\x10min_idle_session\x18\x05 \x01(\rR\x0eminIdleSession\"9\n" +
 	"\x12AnytlsServerConfig\x12#\n" +
 	"\x05users\x18\x01 \x03(\v2\r.x.UserConfigR\x05usersB0Z.github.com/5vnetwork/vx-core/app/configs/proxyb\x06proto3"
 

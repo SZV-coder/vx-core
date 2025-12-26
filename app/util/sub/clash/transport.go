@@ -1,6 +1,8 @@
-package clashparser
+package clash
 
 import (
+	"encoding/base64"
+	"fmt"
 	"strings"
 
 	"github.com/5vnetwork/vx-core/app/configs"
@@ -30,51 +32,41 @@ func parseTransportConfig(mapping map[string]any) (*configs.TransportConfig, err
 
 	case "ws":
 		wsConfig := &websocket.WebsocketConfig{}
-
 		// Parse ws-opts
 		if wsOptsRaw, ok := mapping["ws-opts"]; ok {
 			if wsOptsMap, ok := wsOptsRaw.(map[string]any); ok {
 				path, _ := wsOptsMap["path"].(string)
 				wsConfig.Path = path
-
+				maxEarlyData, _ := wsOptsMap["max-early-data"].(int)
+				wsConfig.MaxEarlyData = int32(maxEarlyData)
 				earlyDataHeaderName, _ := wsOptsMap["early-data-header-name"].(string)
 				wsConfig.EarlyDataHeaderName = earlyDataHeaderName
-
 				// Get host from headers
 				if headersRaw, ok := wsOptsMap["headers"]; ok {
 					if headersMap, ok := headersRaw.(map[string]any); ok {
 						if host, ok := headersMap["Host"].(string); ok {
 							wsConfig.Host = host
 						}
+						for key, value := range headersMap {
+							wsConfig.Header = append(wsConfig.Header, &websocket.Header{
+								Key:   key,
+								Value: fmt.Sprintf("%v", value),
+							})
+						}
 					}
 				}
 			}
 		}
-
 		config.Protocol = &configs.TransportConfig_Websocket{Websocket: wsConfig}
-
-	case "grpc":
-		grpcConfig := &grpcProto.GrpcConfig{}
-
-		// Parse grpc-opts
-		if grpcOptsRaw, ok := mapping["grpc-opts"]; ok {
-			if grpcOptsMap, ok := grpcOptsRaw.(map[string]any); ok {
-				serviceName, _ := grpcOptsMap["grpc-service-name"].(string)
-				grpcConfig.ServiceName = serviceName
-			}
-		}
-
-		config.Protocol = &configs.TransportConfig_Grpc{Grpc: grpcConfig}
-
-	case "h2", "http":
+	case "http":
+		return nil, fmt.Errorf("http transport is not supported")
+	case "h2":
 		httpConfig := &httpProto.HttpConfig{}
-
 		// Parse h2-opts
 		if h2OptsRaw, ok := mapping["h2-opts"]; ok {
 			if h2OptsMap, ok := h2OptsRaw.(map[string]any); ok {
 				path, _ := h2OptsMap["path"].(string)
 				httpConfig.Path = path
-
 				// Parse host list
 				if hostRaw, ok := h2OptsMap["host"]; ok {
 					switch h := hostRaw.(type) {
@@ -94,14 +86,29 @@ func parseTransportConfig(mapping map[string]any) (*configs.TransportConfig, err
 				}
 			}
 		}
-
 		config.Protocol = &configs.TransportConfig_Http{Http: httpConfig}
+	case "grpc":
+		grpcConfig := &grpcProto.GrpcConfig{}
+		// Parse grpc-opts
+		if grpcOptsRaw, ok := mapping["grpc-opts"]; ok {
+			if grpcOptsMap, ok := grpcOptsRaw.(map[string]any); ok {
+				serviceName, _ := grpcOptsMap["grpc-service-name"].(string)
+				grpcConfig.ServiceName = serviceName
+			}
+		}
+		config.Protocol = &configs.TransportConfig_Grpc{Grpc: grpcConfig}
 	}
 
 	// Parse TLS settings
-	if tlsEnabled, _ := mapping["tls"].(bool); tlsEnabled {
+	tlsEnabled, _ := mapping["tls"].(bool)
+	if !tlsEnabled {
+		_, tlsEnabled = mapping["sni"]
+	}
+	if !tlsEnabled {
+		_, tlsEnabled = mapping["servername"]
+	}
+	if tlsEnabled {
 		tlsConfig := &tls.TlsConfig{}
-
 		// Server name / SNI
 		if sni, ok := mapping["servername"].(string); ok && sni != "" {
 			tlsConfig.ServerName = sni
@@ -116,6 +123,9 @@ func parseTransportConfig(mapping map[string]any) (*configs.TransportConfig, err
 
 		// Fingerprint
 		if fp, ok := mapping["fingerprint"].(string); ok {
+			tlsConfig.Imitate = fp
+		}
+		if fp, ok := mapping["client-fingerprint"].(string); ok {
 			tlsConfig.Imitate = fp
 		}
 
@@ -138,6 +148,21 @@ func parseTransportConfig(mapping map[string]any) (*configs.TransportConfig, err
 					tlsConfig.NextProtocol = strings.Split(alpn, ",")
 				} else {
 					tlsConfig.NextProtocol = []string{alpn}
+				}
+			}
+		}
+
+		// ech
+		if echOptsRaw, ok := mapping["ech-opts"]; ok {
+			if echOptsMap, ok := echOptsRaw.(map[string]any); ok {
+				echConfig, _ := echOptsMap["config"].(string)
+				var err error
+				tlsConfig.EchConfig, err = base64.StdEncoding.DecodeString(echConfig)
+				if err != nil {
+					return nil, fmt.Errorf("failed to decode ech config: %w", err)
+				}
+				if enableEch, ok := echOptsMap["enable"].(bool); ok {
+					tlsConfig.EnableEch = enableEch
 				}
 			}
 		}
@@ -169,6 +194,9 @@ func parseTransportConfig(mapping map[string]any) (*configs.TransportConfig, err
 
 			// Fingerprint
 			if fp, ok := mapping["fingerprint"].(string); ok {
+				realityConfig.Fingerprint = fp
+			}
+			if fp, ok := mapping["client-fingerprint"].(string); ok {
 				realityConfig.Fingerprint = fp
 			}
 

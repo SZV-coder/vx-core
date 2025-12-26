@@ -1,11 +1,10 @@
-package decode_test
+package common
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/5vnetwork/vx-core/app/configs/proxy"
-	. "github.com/5vnetwork/vx-core/app/subscription/decode"
 	"github.com/5vnetwork/vx-core/common/serial"
 )
 

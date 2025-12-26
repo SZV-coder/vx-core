@@ -2,12 +2,16 @@ package downloader
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"net/url"
 
 	"github.com/5vnetwork/vx-core/app/util"
 	"github.com/5vnetwork/vx-core/common/net"
 	"github.com/5vnetwork/vx-core/common/session"
 	"github.com/5vnetwork/vx-core/i"
+	"github.com/go-resty/resty/v2"
+	"github.com/rs/zerolog/log"
 )
 
 type Downloader struct {
@@ -18,10 +22,10 @@ func NewDownloader(handlerPicker i.Router) *Downloader {
 	return &Downloader{HandlerPicker: handlerPicker}
 }
 
-func (d *Downloader) Download(ctx context.Context, u string) ([]byte, error) {
+func (d *Downloader) Download(ctx context.Context, u string) ([]byte, http.Header, error) {
 	parsedUrl, err := url.Parse(u)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	handler, err := d.HandlerPicker.PickHandler(ctx, &session.Info{
 		Target: net.Destination{
@@ -31,9 +35,30 @@ func (d *Downloader) Download(ctx context.Context, u string) ([]byte, error) {
 		},
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return util.DownloadToMemoryResty(ctx, u, handler)
+	return DownloadToMemoryResty(ctx, u, handler)
+}
+
+func DownloadToMemoryResty(ctx context.Context, url string, handlers ...i.Outbound) ([]byte, http.Header, error) {
+	if len(handlers) == 0 {
+		return nil, nil, errors.New("no handlers")
+	}
+
+	for _, h := range handlers {
+		client := resty.New()
+		client.SetTransport(util.HandlerToHttpClient(h).Transport)
+
+		resp, err := client.R().SetContext(ctx).
+			EnableTrace().
+			Get(url)
+		if err != nil {
+			log.Err(err).Str("handler", h.Tag()).Msg("DownloadToMemoryResty handler failed")
+			continue
+		}
+		return resp.Body(), resp.Header(), nil
+	}
+	return nil, nil, errors.New("all handlers failed")
 }
 
 type Downloader0 struct {
@@ -44,6 +69,6 @@ func NewDownloader0(handlers []i.Outbound) *Downloader0 {
 	return &Downloader0{handlers: handlers}
 }
 
-func (d *Downloader0) Download(ctx context.Context, url string) ([]byte, error) {
-	return util.DownloadToMemoryResty(ctx, url, d.handlers...)
+func (d *Downloader0) Download(ctx context.Context, url string) ([]byte, http.Header, error) {
+	return DownloadToMemoryResty(ctx, url, d.handlers...)
 }

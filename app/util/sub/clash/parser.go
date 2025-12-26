@@ -1,13 +1,17 @@
-package clashparser
+package clash
 
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/configs/proxy"
+	"github.com/5vnetwork/vx-core/app/util/sub"
+	"github.com/5vnetwork/vx-core/common/net"
 	"github.com/5vnetwork/vx-core/common/serial"
-	"github.com/stretchr/testify/assert/yaml"
+	mystrings "github.com/5vnetwork/vx-core/common/strings"
+	"gopkg.in/yaml.v3"
 )
 
 // ClashConfig represents the structure of a Clash/Mihomo configuration file
@@ -34,36 +38,48 @@ type DNSConfig struct {
 	Fallback          []string `yaml:"fallback"`
 }
 
-func ParseClashConfig(data []byte) ([]*configs.OutboundHandlerConfig, []string, error) {
+func ParseClashConfig(data []byte) (*sub.DecodeResult, error) {
 	var clashConfig ClashConfig
 	if err := yaml.Unmarshal(data, &clashConfig); err != nil {
-		return nil, nil, fmt.Errorf("failed to parse yaml: %w", err)
+		return nil, fmt.Errorf("failed to parse yaml: %w", err)
 	}
-	return ParseProxies(clashConfig.Proxies)
+	results, failedNodes, err := ParseProxies(clashConfig.Proxies)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse proxies: %w", err)
+	}
+	return &sub.DecodeResult{
+		Configs:     results,
+		FailedNodes: failedNodes,
+	}, nil
 }
 
 // ParseProxies converts a "proxies" array from a clash/mihomo config to vx-core OutboundHandlerConfigs
 func ParseProxies(proxies []any) ([]*configs.OutboundHandlerConfig, []string, error) {
 	results := make([]*configs.OutboundHandlerConfig, 0, len(proxies))
-	failedReasons := make([]string, 0, len(proxies))
+	failedNodes := make([]string, 0, len(proxies))
 
-	for i, proxyData := range proxies {
+	for _, proxyData := range proxies {
 		mapping, ok := proxyData.(map[string]any)
 		if !ok {
-			failedReasons = append(failedReasons, fmt.Sprintf("proxy entry %d is not a map", i))
+			failedNodes = append(failedNodes, mystrings.ToString(proxyData))
 			continue
 		}
 
 		config, err := ParseProxy(mapping)
 		if err != nil {
-			failedReasons = append(failedReasons, fmt.Sprintf("parse proxy %d: %s", i, err.Error()))
+			yamlBytes, err := yaml.Marshal(mapping)
+			if err != nil {
+				failedNodes = append(failedNodes, mystrings.ToString(proxyData))
+			} else {
+				failedNodes = append(failedNodes, string(yamlBytes))
+			}
 			continue
 		}
 
 		results = append(results, config)
 	}
 
-	return results, failedReasons, nil
+	return results, failedNodes, nil
 }
 
 // ParseProxy converts a single mihomo proxy mapping to vx-core OutboundHandlerConfig
@@ -91,6 +107,8 @@ func ParseProxy(mapping map[string]any) (*configs.OutboundHandlerConfig, error) 
 		return parseHTTP(mapping, name)
 	case "anytls":
 		return parseAnytls(mapping, name)
+	case "hysteria":
+		return parseHysteria(mapping, name)
 	default:
 		return nil, fmt.Errorf("unsupported proxy type: %s", proxyType)
 	}
@@ -284,6 +302,10 @@ func parseShadowsocks(mapping map[string]any, name string) (*configs.OutboundHan
 		Protocol: serial.ToTypedMessage(ssConfig),
 	}
 
+	if mapping["udp-over-tcp"] == true {
+		outbound.Uot = true
+	}
+
 	// Parse transport config
 	transport, err := parseTransportConfig(mapping)
 	if err != nil {
@@ -338,11 +360,9 @@ func parseHTTP(mapping map[string]any, name string) (*configs.OutboundHandlerCon
 			Password: password,
 		}
 	}
-
 	httpConfig := &proxy.HttpClientConfig{
 		Account: account,
 	}
-
 	outbound := &configs.OutboundHandlerConfig{
 		Tag:      name,
 		Address:  server,
@@ -369,6 +389,15 @@ func parseAnytls(mapping map[string]any, name string) (*configs.OutboundHandlerC
 	anytlsConfig := &proxy.AnytlsClientConfig{
 		Password: password,
 	}
+	if idleSessionCheckInterval, ok := mapping["idle-session-check-interval"].(int); ok {
+		anytlsConfig.IdleSessionCheckInterval = uint32(idleSessionCheckInterval)
+	}
+	if idleSessionTimeout, ok := mapping["idle-session-timeout"].(int); ok {
+		anytlsConfig.IdleSessionTimeout = uint32(idleSessionTimeout)
+	}
+	if minIdleSession, ok := mapping["min-idle-session"].(int); ok {
+		anytlsConfig.MinIdleSession = uint32(minIdleSession)
+	}
 
 	outbound := &configs.OutboundHandlerConfig{
 		Tag:      name,
@@ -384,6 +413,65 @@ func parseAnytls(mapping map[string]any, name string) (*configs.OutboundHandlerC
 	}
 	outbound.Transport = transport
 
+	return outbound, nil
+}
+
+func parseHysteria(mapping map[string]any, name string) (*configs.OutboundHandlerConfig, error) {
+	server, _ := mapping["server"].(string)
+	var ports []*net.PortRange
+	if portVal, ok := mapping["port"].(string); ok {
+		ports = append(ports, &net.PortRange{From: getPort(portVal), To: getPort(portVal)})
+	} else if portVal, ok := mapping["ports"].(string); ok {
+		ports = sub.TryParsePorts(portVal)
+	}
+	hysteriaConfig := &proxy.Hysteria2ClientConfig{
+		Auth:      mapping["password"].(string),
+		Bandwidth: &proxy.BandwidthConfig{},
+	}
+	if mapping["obfs"] == "salamander" {
+		hysteriaConfig.Obfs = &proxy.ObfsConfig{
+			Obfs: &proxy.ObfsConfig_Salamander{
+				Salamander: &proxy.SalamanderConfig{
+					Password: mapping["obfs-password"].(string),
+				},
+			},
+		}
+	}
+	// bandwidth
+	if up, ok := mapping["up"].(string); ok {
+		if strings.Contains(up, "Mbps") {
+			if u := strings.Split(up, " ")[0]; u != "" {
+				upValue, _ := strconv.Atoi(u)
+				hysteriaConfig.Bandwidth.MaxTx = uint32(upValue * 1024 * 1024 / 8)
+			}
+		} else {
+			upValue, _ := strconv.Atoi(up)
+			hysteriaConfig.Bandwidth.MaxTx = uint32(upValue * 1024 * 1024 / 8)
+		}
+	}
+	if down, ok := mapping["down"].(string); ok {
+		if strings.Contains(down, "Mbps") {
+			if d := strings.Split(down, " ")[0]; d != "" {
+				downValue, _ := strconv.Atoi(d)
+				hysteriaConfig.Bandwidth.MaxRx = uint32(downValue * 1024 * 1024 / 8)
+			}
+		}
+	} else {
+		downValue, _ := strconv.Atoi(down)
+		hysteriaConfig.Bandwidth.MaxRx = uint32(downValue * 1024 * 1024 / 8)
+	}
+	transport, err := parseTransportConfig(mapping)
+	if err != nil {
+		return nil, fmt.Errorf("parse transport: %w", err)
+	}
+	hysteriaConfig.TlsConfig = transport.GetTls()
+
+	outbound := &configs.OutboundHandlerConfig{
+		Tag:      name,
+		Address:  server,
+		Ports:    ports,
+		Protocol: serial.ToTypedMessage(hysteriaConfig),
+	}
 	return outbound, nil
 }
 

@@ -1,4 +1,4 @@
-package decode
+package common
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/configs/proxy"
+	"github.com/5vnetwork/vx-core/app/util/sub"
 	"github.com/5vnetwork/vx-core/common/serial"
 )
 
@@ -35,7 +36,7 @@ func ParseVlessFromLink(link string) (*configs.OutboundHandlerConfig, error) {
 	addr := u.Hostname()
 	port := u.Port()
 
-	ports := TryParsePorts(port)
+	ports := sub.TryParsePorts(port)
 	if len(ports) == 0 {
 		return nil, errors.New("port invalid: " + port)
 	}

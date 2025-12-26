@@ -1,4 +1,4 @@
-package decode
+package common
 
 import (
 	"testing"
@@ -47,11 +47,7 @@ func TestParseVlessFromLink(t *testing.T) {
 }
 
 func TestDecodeVless(t *testing.T) {
-	sub, _ := Decode("vless://12345678-1234-1234-1234-123456789012@1.1.1.1:443?encryption=none&flow=xtls-rprx-vision&security=tls&sni=asdf.com&alpn=h2%2Chttp%2F1.1&fp=chrome&allowInsecure=1&type=tcp&headerType=none#a")
-	if len(sub.Configs) != 1 {
-		t.Errorf("Expected 1 config, got %d", len(sub.Configs))
-	}
-	config := sub.Configs[0]
+	config, _ := ParseVlessFromLink("vless://12345678-1234-1234-1234-123456789012@1.1.1.1:443?encryption=none&flow=xtls-rprx-vision&security=tls&sni=asdf.com&alpn=h2%2Chttp%2F1.1&fp=chrome&allowInsecure=1&type=tcp&headerType=none#a")
 	if config.Address != "1.1.1.1" {
 		t.Fatal("address wrong")
 	}

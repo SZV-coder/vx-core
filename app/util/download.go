@@ -2,7 +2,6 @@ package util
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -11,8 +10,6 @@ import (
 	"time"
 
 	"github.com/5vnetwork/vx-core/i"
-	"github.com/go-resty/resty/v2"
-	"github.com/rs/zerolog/log"
 )
 
 func DownloadToMemory(url string, handlers []i.Handler) ([]byte, error) {
@@ -33,27 +30,6 @@ func DownloadToMemory(url string, handlers []i.Handler) ([]byte, error) {
 			continue
 		}
 		return buffer.Bytes(), nil
-	}
-	return nil, errors.New("all handlers failed")
-}
-
-func DownloadToMemoryResty(ctx context.Context, url string, handlers ...i.Outbound) ([]byte, error) {
-	if len(handlers) == 0 {
-		return nil, errors.New("no handlers")
-	}
-
-	for _, h := range handlers {
-		client := resty.New()
-		client.SetTransport(HandlerToHttpClient(h).Transport)
-
-		resp, err := client.R().SetContext(ctx).
-			EnableTrace().
-			Get(url)
-		if err != nil {
-			log.Err(err).Str("handler", h.Tag()).Msg("DownloadToMemoryResty handler failed")
-			continue
-		}
-		return resp.Body(), nil
 	}
 	return nil, errors.New("all handlers failed")
 }

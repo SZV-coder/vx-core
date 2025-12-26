@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"slices"
 	"sync"
 	"time"
 
 	"github.com/5vnetwork/vx-core/app/configs"
-	"github.com/5vnetwork/vx-core/app/subscription/decode"
+	"github.com/5vnetwork/vx-core/app/util"
 	"github.com/5vnetwork/vx-core/app/xsqlite"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/proto"
@@ -29,7 +30,7 @@ type SubscriptionManager struct {
 }
 
 type downloader interface {
-	Download(ctx context.Context, url string) ([]byte, error)
+	Download(ctx context.Context, url string) ([]byte, http.Header, error)
 }
 
 type futureTask struct {
@@ -220,15 +221,19 @@ func UpdateSubscription(sub *xsqlite.Subscription, db *gorm.DB, downloader downl
 		link = parsedUrl.String()
 	}
 
-	content, err := downloader.Download(ctx, link)
+	body, header, err := downloader.Download(ctx, link)
 	if err != nil {
 		return 0, nil, fmt.Errorf("failed to download subscription: %v", err)
 	}
-	uriContent, err := decode.Decode(string(content))
+	sub.Description = header.Get("subscription-userinfo")
+
+	uriContent, err := util.Decode(string(body))
 	if err != nil {
 		return 0, nil, fmt.Errorf("failed to decode subscription: %v", err)
 	}
-	sub.Description = uriContent.Description
+	if sub.Description != "" {
+		sub.Description = uriContent.Description
+	}
 
 	// get all handlers of current subscription
 	var existingHandlers []*xsqlite.OutboundHandler
@@ -305,9 +310,9 @@ func UpdateSubscription(sub *xsqlite.Subscription, db *gorm.DB, downloader downl
 			q := parsedUrl1.Query()
 			q.Set("flag", "shadowrocket")
 			parsedUrl1.RawQuery = q.Encode()
-			content1, err := downloader.Download(ctx, parsedUrl1.String())
+			content1, _, err := downloader.Download(ctx, parsedUrl1.String())
 			if err == nil {
-				uriContent1, err := decode.Decode(string(content1))
+				uriContent1, err := util.Decode(string(content1))
 				if err == nil {
 					sub.Description = uriContent1.Description
 				}

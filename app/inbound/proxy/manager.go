@@ -19,6 +19,7 @@ type Inbound interface {
 
 type UserManage interface {
 	AddUser(user i.User)
+	// secret can be empty
 	RemoveUser(uid, secret string)
 	WithOnUnauthorizedRequest(f i.UnauthorizedReport)
 }

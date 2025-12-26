@@ -1,4 +1,4 @@
-package decode
+package common
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/configs/proxy"
+	"github.com/5vnetwork/vx-core/app/util/sub"
 	"github.com/5vnetwork/vx-core/common/serial"
 )
 
@@ -24,7 +25,7 @@ func ParseSocks5FromLink(link string) (*configs.OutboundHandlerConfig, error) {
 	return &configs.OutboundHandlerConfig{
 		Address: u.Hostname(),
 		Tag:     u.Fragment,
-		Ports:   TryParsePorts(u.Port()),
+		Ports:   sub.TryParsePorts(u.Port()),
 		Protocol: serial.ToTypedMessage(&proxy.SocksClientConfig{
 			Name:     u.User.Username(),
 			Password: password,

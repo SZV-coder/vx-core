@@ -1,18 +1,16 @@
-package decode
+package common
 
 import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/any"
 	"net/url"
 	"strings"
 
-	httpProto "github.com/5vnetwork/vx-core/transport/protocols/http"
-	"github.com/5vnetwork/vx-core/transport/protocols/splithttp"
-
 	"github.com/5vnetwork/vx-core/app/configs"
-	"github.com/5vnetwork/vx-core/app/util/clashparser"
+	"github.com/5vnetwork/vx-core/app/util/sub"
 	"github.com/5vnetwork/vx-core/common/serial"
 	"github.com/5vnetwork/vx-core/transport/headers/http"
 	"github.com/5vnetwork/vx-core/transport/headers/srtp"
@@ -20,46 +18,22 @@ import (
 	"github.com/5vnetwork/vx-core/transport/headers/wechat"
 	"github.com/5vnetwork/vx-core/transport/headers/wireguard"
 	"github.com/5vnetwork/vx-core/transport/protocols/grpc"
+	httpProto "github.com/5vnetwork/vx-core/transport/protocols/http"
 	"github.com/5vnetwork/vx-core/transport/protocols/httpupgrade"
 	"github.com/5vnetwork/vx-core/transport/protocols/kcp"
+	"github.com/5vnetwork/vx-core/transport/protocols/splithttp"
 	"github.com/5vnetwork/vx-core/transport/protocols/tcp"
 	"github.com/5vnetwork/vx-core/transport/protocols/websocket"
 	"github.com/5vnetwork/vx-core/transport/security/reality"
 	"github.com/5vnetwork/vx-core/transport/security/tls"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/rs/zerolog/log"
 )
 
-type DecodeResult struct {
-	Configs     []*configs.OutboundHandlerConfig
-	Description string
-	FailedNodes []string
-}
-
-func Decode(content string) (*DecodeResult, error) {
-	result, err := decodeClashConfig(content)
-	if err != nil {
-		return decodeCommon(content)
-	}
-	return result, nil
-}
-
-func decodeClashConfig(content string) (*DecodeResult, error) {
-	configs, errs, err := clashparser.ParseClashConfig([]byte(content))
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse clash config: %w", err)
-	}
-	return &DecodeResult{
-		Configs:     configs,
-		FailedNodes: errs,
-	}, nil
-}
-
 // Decode parses subscription content into outbound handler configurations
-func decodeCommon(content string) (*DecodeResult, error) {
+func DecodeCommon(content string) (*sub.DecodeResult, error) {
 	// If content doesn't contain ':', assume it's base64 encoded
 	if !strings.Contains(content, ":") {
-		decoded, err := DecodeBase64(content)
+		decoded, err := sub.DecodeBase64(content)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode base64 content: %v", err)
 		}
@@ -78,7 +52,7 @@ func decodeCommon(content string) (*DecodeResult, error) {
 	var description string
 	configList := make([]*configs.OutboundHandlerConfig, 0)
 
-	result := &DecodeResult{}
+	result := &sub.DecodeResult{}
 	// Process each line
 	for i, line := range lines {
 		log.Debug().Str("link", line).Msg("decode")
@@ -92,7 +66,7 @@ func decodeCommon(content string) (*DecodeResult, error) {
 		if strings.HasPrefix(line, "vmess://") {
 			// Parse Vmess configuration
 			vmessData := line[8:] // Remove "vmess://" prefix
-			decodedVmess, err := DecodeBase64(vmessData)
+			decodedVmess, err := sub.DecodeBase64(vmessData)
 			if err != nil {
 				log.Debug().Err(err).Msg("Failed to decode vmess data")
 				result.FailedNodes = append(result.FailedNodes, line)
@@ -195,35 +169,6 @@ func decodeCommon(content string) (*DecodeResult, error) {
 	result.Configs = configList
 	result.Description = description
 	return result, nil
-}
-
-// DecodeBase64 decodes a base64 string, trying both standard and URL-safe encoding
-// and adding padding if necessary
-func DecodeBase64(encoded string) (string, error) {
-	// Add padding if necessary
-	if len(encoded)%4 != 0 {
-		padLen := 4 - len(encoded)%4
-		encoded += strings.Repeat("=", padLen)
-	}
-
-	// Try standard base64 first
-	decoded, err := base64.StdEncoding.DecodeString(encoded)
-	if err != nil {
-		// If that fails, try URL-safe base64
-		decoded, err = base64.URLEncoding.DecodeString(encoded)
-		if err != nil {
-			// Try URL-safe base64 with no padding
-			decoded, err = base64.RawURLEncoding.DecodeString(encoded)
-			if err != nil {
-				// Try standard base64 with no padding
-				decoded, err = base64.RawStdEncoding.DecodeString(encoded)
-				if err != nil {
-					return "", fmt.Errorf("failed to decode base64 string: %w", err)
-				}
-			}
-		}
-	}
-	return string(decoded), nil
 }
 
 func setProtocol(config *configs.TransportConfig, query url.Values) error {

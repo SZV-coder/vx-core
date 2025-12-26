@@ -1,4 +1,4 @@
-package decode
+package common
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/configs/proxy"
+	"github.com/5vnetwork/vx-core/app/util/sub"
 	"github.com/5vnetwork/vx-core/common/serial"
 	"github.com/5vnetwork/vx-core/transport/security/tls"
 )
@@ -59,7 +60,7 @@ func ParseVmessFromJSON(data []byte) (*VmessConfig, error) {
 
 // ToProxyHandlerConfig converts VmessConfig to OutboundHandlerConfig
 func (v *VmessConfig) ToProxyHandlerConfig() (*configs.OutboundHandlerConfig, error) {
-	port := TryParsePorts(v.Port.String())
+	port := sub.TryParsePorts(v.Port.String())
 	if len(port) == 0 {
 		return nil, fmt.Errorf("invalid port: %s", v.Port)
 	}

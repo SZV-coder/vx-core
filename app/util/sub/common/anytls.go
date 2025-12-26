@@ -1,4 +1,4 @@
-package decode
+package common
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/configs/proxy"
+	"github.com/5vnetwork/vx-core/app/util/sub"
 	"github.com/5vnetwork/vx-core/common/serial"
 )
 
@@ -32,7 +33,7 @@ func ParseAnytls(link string) (*configs.OutboundHandlerConfig, error) {
 		return nil, err
 	}
 
-	ports := TryParsePorts(u.Port())
+	ports := sub.TryParsePorts(u.Port())
 	if len(ports) == 0 {
 		return nil, fmt.Errorf("invalid port: %s", u.Port())
 	}

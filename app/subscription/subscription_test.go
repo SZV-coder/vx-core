@@ -2,6 +2,7 @@ package subscription_test
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"testing"
 	"time"
@@ -19,9 +20,9 @@ type MockDownloader struct {
 	mock.Mock
 }
 
-func (m *MockDownloader) Download(ctx context.Context, url string) ([]byte, error) {
+func (m *MockDownloader) Download(ctx context.Context, url string) ([]byte, http.Header, error) {
 	args := m.Called(url)
-	return args.Get(0).([]byte), args.Error(1)
+	return args.Get(0).([]byte), args.Get(1).(http.Header), args.Error(2)
 }
 
 func setupTestDB(t *testing.T, name string) *gorm.DB {
