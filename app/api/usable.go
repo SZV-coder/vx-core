@@ -1,9 +1,11 @@
 package api
 
 import (
+	"bufio"
 	context "context"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/5vnetwork/vx-core/app/outbound"
@@ -16,12 +18,13 @@ import (
 )
 
 // use TraceList. Get ip, usable of a handler.
-func (a *Api) HandlerTest(ctx context.Context, req *HandlerUsableRequest, url string) (ret HandlerUsableResponse) {
+func (a *Api) HandlerTest(ctx context.Context, req *HandlerUsableRequest) (ret HandlerUsableResponse) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	logger := log.With().Uint32("sid", uint32(session.NewID())).Logger()
 	ctx = logger.WithContext(ctx)
 
+	url := util.TraceList[0]
 	logger.Debug().Str("handler", req.Handler.GetTag()).Str("test", "usable").Str("url", url).Send()
 
 	var dest net.Address
@@ -76,9 +79,29 @@ func (a *Api) HandlerTest(ctx context.Context, req *HandlerUsableRequest, url st
 	logger.Debug().Msg("body read")
 	rsp.Body.Close()
 
-	pairs := util.ParseKeyValueText(string(data))
+	pairs := ParseKeyValueText(string(data))
 
 	ret.Ping = int32(ping)
 	ret.Ip = pairs["ip"]
+	ret.Country = pairs["loc"]
 	return
+}
+
+const testUrl = "https://blog.cloudflare.com/cdn-cgi/trace"
+
+func ParseKeyValueText(text string) map[string]string {
+	result := make(map[string]string)
+	scanner := bufio.NewScanner(strings.NewReader(text))
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.TrimSpace(parts[1])
+			result[key] = value
+		}
+	}
+
+	return result
 }

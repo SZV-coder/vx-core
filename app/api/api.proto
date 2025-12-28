@@ -143,6 +143,7 @@ message HandlerUsableRequest {
 message HandlerUsableResponse {
   int32 ping = 1;
   string ip = 2;
+  string country = 3;
 }
 
 // speed test

@@ -256,7 +256,7 @@ func (a *Api) Download(ctx context.Context, req *DownloadRequest) (*DownloadResp
 func (a *Api) HandlerUsable(ctx context.Context, req *HandlerUsableRequest) (*HandlerUsableResponse, error) {
 	log.Debug().Msgf("HandlerUsable for: %v", req.Handler.GetTag())
 	for i := 0; i < 3; i++ {
-		rsp := a.HandlerTest(ctx, req, util.TraceList[0])
+		rsp := a.HandlerTest(ctx, req)
 		if rsp.Ping > 0 {
 			return &rsp, nil
 		}

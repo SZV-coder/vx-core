@@ -961,6 +961,7 @@ type HandlerUsableResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ping          int32                  `protobuf:"varint,1,opt,name=ping,proto3" json:"ping,omitempty"`
 	Ip            string                 `protobuf:"bytes,2,opt,name=ip,proto3" json:"ip,omitempty"`
+	Country       string                 `protobuf:"bytes,3,opt,name=country,proto3" json:"country,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1005,6 +1006,13 @@ func (x *HandlerUsableResponse) GetPing() int32 {
 func (x *HandlerUsableResponse) GetIp() string {
 	if x != nil {
 		return x.Ip
+	}
+	return ""
+}
+
+func (x *HandlerUsableResponse) GetCountry() string {
+	if x != nil {
+		return x.Country
 	}
 	return ""
 }
@@ -3899,10 +3907,11 @@ const file_app_api_api_proto_rawDesc = "" +
 	"\x03ip6\x18\x01 \x01(\tR\x03ip6\x12\x10\n" +
 	"\x03ip4\x18\x02 \x01(\tR\x03ip4\"B\n" +
 	"\x14HandlerUsableRequest\x12*\n" +
-	"\ahandler\x18\x01 \x01(\v2\x10.x.HandlerConfigR\ahandler\";\n" +
+	"\ahandler\x18\x01 \x01(\v2\x10.x.HandlerConfigR\ahandler\"U\n" +
 	"\x15HandlerUsableResponse\x12\x12\n" +
 	"\x04ping\x18\x01 \x01(\x05R\x04ping\x12\x0e\n" +
-	"\x02ip\x18\x02 \x01(\tR\x02ip\"T\n" +
+	"\x02ip\x18\x02 \x01(\tR\x02ip\x12\x18\n" +
+	"\acountry\x18\x03 \x01(\tR\acountry\"T\n" +
 	"\x10SpeedTestRequest\x12,\n" +
 	"\bhandlers\x18\x01 \x03(\v2\x10.x.HandlerConfigR\bhandlers\x12\x12\n" +
 	"\x04size\x18\x02 \x01(\rR\x04size\"X\n" +
