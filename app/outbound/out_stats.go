@@ -43,9 +43,11 @@ func (o *OutStats) CleanOldStats() {
 type OutboundHandlerStats struct {
 	UpCounter   atomic.Uint64
 	DownCounter atomic.Uint64
-	Throughput  atomic.Uint64
-	Ping        atomic.Uint64
-	Time        atomic.Value
+	Interval    atomic.Value
+
+	Throughput atomic.Uint64
+	Ping       atomic.Uint64
+	Time       atomic.Value
 }
 
 func NewHandlerStats(throughput uint64, ping uint64) *OutboundHandlerStats {
@@ -53,6 +55,7 @@ func NewHandlerStats(throughput uint64, ping uint64) *OutboundHandlerStats {
 	s.Throughput.Store(throughput)
 	s.Ping.Store(ping)
 	s.Time.Store(time.Now())
+	s.Interval.Store(time.Now())
 	return s
 }
 

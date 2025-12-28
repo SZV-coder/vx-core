@@ -112,6 +112,8 @@ message OutboundStats {
   uint64 rate = 3;
   uint64 ping = 4;
   string id = 5;
+  // seconds
+  float interval = 6;
 }
 message GetStatsRequest { uint32 interval = 1; }
 message StatsResponse {

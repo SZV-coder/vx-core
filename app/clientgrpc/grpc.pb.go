@@ -650,9 +650,11 @@ type OutboundStats struct {
 	Up    uint64                 `protobuf:"varint,1,opt,name=up,proto3" json:"up,omitempty"`
 	Down  uint64                 `protobuf:"varint,2,opt,name=down,proto3" json:"down,omitempty"`
 	// download
-	Rate          uint64 `protobuf:"varint,3,opt,name=rate,proto3" json:"rate,omitempty"`
-	Ping          uint64 `protobuf:"varint,4,opt,name=ping,proto3" json:"ping,omitempty"`
-	Id            string `protobuf:"bytes,5,opt,name=id,proto3" json:"id,omitempty"`
+	Rate uint64 `protobuf:"varint,3,opt,name=rate,proto3" json:"rate,omitempty"`
+	Ping uint64 `protobuf:"varint,4,opt,name=ping,proto3" json:"ping,omitempty"`
+	Id   string `protobuf:"bytes,5,opt,name=id,proto3" json:"id,omitempty"`
+	// seconds
+	Interval      float32 `protobuf:"fixed32,6,opt,name=interval,proto3" json:"interval,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -720,6 +722,13 @@ func (x *OutboundStats) GetId() string {
 		return x.Id
 	}
 	return ""
+}
+
+func (x *OutboundStats) GetInterval() float32 {
+	if x != nil {
+		return x.Interval
+	}
+	return 0
 }
 
 type GetStatsRequest struct {
@@ -2354,13 +2363,14 @@ const file_app_clientgrpc_grpc_proto_rawDesc = "" +
 	"\x12AddInboundResponse\"(\n" +
 	"\x14RemoveInboundRequest\x12\x10\n" +
 	"\x03tag\x18\x01 \x01(\tR\x03tag\"\x17\n" +
-	"\x15RemoveInboundResponse\"k\n" +
+	"\x15RemoveInboundResponse\"\x87\x01\n" +
 	"\rOutboundStats\x12\x0e\n" +
 	"\x02up\x18\x01 \x01(\x04R\x02up\x12\x12\n" +
 	"\x04down\x18\x02 \x01(\x04R\x04down\x12\x12\n" +
 	"\x04rate\x18\x03 \x01(\x04R\x04rate\x12\x12\n" +
 	"\x04ping\x18\x04 \x01(\x04R\x04ping\x12\x0e\n" +
-	"\x02id\x18\x05 \x01(\tR\x02id\"-\n" +
+	"\x02id\x18\x05 \x01(\tR\x02id\x12\x1a\n" +
+	"\binterval\x18\x06 \x01(\x02R\binterval\"-\n" +
 	"\x0fGetStatsRequest\x12\x1a\n" +
 	"\binterval\x18\x01 \x01(\rR\binterval\"|\n" +
 	"\rStatsResponse\x121\n" +

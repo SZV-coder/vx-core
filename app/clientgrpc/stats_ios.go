@@ -25,11 +25,12 @@ func (s *ClientGrpc) GetStatsStream(in *GetStatsRequest,
 		st.Lock()
 		for tag, stats := range st.Map {
 			statsList = append(statsList, &OutboundStats{
-				Up:   stats.UpCounter.Swap(0),
-				Down: stats.DownCounter.Swap(0),
-				Rate: stats.Throughput.Load(),
-				Ping: stats.Ping.Load(),
-				Id:   tag,
+				Up:       stats.UpCounter.Swap(0),
+				Down:     stats.DownCounter.Swap(0),
+				Rate:     stats.Throughput.Load(),
+				Ping:     stats.Ping.Load(),
+				Id:       tag,
+				Interval: float32(time.Since(stats.Interval.Swap(time.Now()).(time.Time)).Seconds()),
 			})
 		}
 		st.Unlock()
