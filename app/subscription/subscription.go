@@ -16,6 +16,7 @@ import (
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/util"
+	"github.com/5vnetwork/vx-core/app/util/sub"
 	"github.com/5vnetwork/vx-core/app/xsqlite"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/proto"
@@ -33,11 +34,7 @@ type SubscriptionManager struct {
 }
 
 type downloader interface {
-	Download(ctx context.Context, url string) ([]byte, http.Header, error)
-}
-
-type futureTask struct {
-	timer *time.Timer
+	Download(ctx context.Context, url string, headers map[string]string) ([]byte, http.Header, error)
 }
 
 type SubscriptionOption func(*SubscriptionManager)
@@ -60,8 +57,8 @@ func WithPeriodicUpdate(periodicUpdate bool) SubscriptionOption {
 	}
 }
 
-func NewSubscriptionManager(interval time.Duration, db *gorm.DB, downloader downloader,
-	opts ...SubscriptionOption) *SubscriptionManager {
+func NewSubscriptionManager(interval time.Duration, db *gorm.DB,
+	downloader downloader, opts ...SubscriptionOption) *SubscriptionManager {
 	s := &SubscriptionManager{
 		Db:         db,
 		Interval:   interval,
@@ -207,15 +204,15 @@ func UpdateSubscriptions(db *gorm.DB, downloader downloader) UpdateSubscriptionR
 
 // return success parsed nodes, failed parsed nodes, error
 // error means cannot get data from server
-func UpdateSubscription(sub *xsqlite.Subscription, db *gorm.DB, downloader downloader) (int, []string, error) {
-	logger := log.With().Int("id", sub.ID).Str("name", sub.Name).Str("link", sub.Link).Logger()
+func UpdateSubscription(subscription *xsqlite.Subscription, db *gorm.DB, downloader downloader) (int, []string, error) {
+	logger := log.With().Int("id", subscription.ID).Str("name", subscription.Name).Str("link", subscription.Link).Logger()
 	ctx := logger.WithContext(context.Background())
 	logger.Debug().Msg("start")
 
-	sub.LastUpdate = int(time.Now().UnixMilli())
-	db.Model(sub).Update("last_update", sub.LastUpdate)
+	subscription.LastUpdate = int(time.Now().UnixMilli())
+	db.Model(subscription).Update("last_update", subscription.LastUpdate)
 
-	link := sub.Link
+	link := subscription.Link
 	// add vx flag
 	if parsedUrl, err := url.Parse(link); err == nil {
 		q := parsedUrl.Query()
@@ -224,23 +221,34 @@ func UpdateSubscription(sub *xsqlite.Subscription, db *gorm.DB, downloader downl
 		link = parsedUrl.String()
 	}
 
-	body, header, err := downloader.Download(ctx, link)
+	var uriContent *sub.DecodeResult
+	// try no user agent first
+	body, header, err := downloader.Download(ctx, link, map[string]string{})
 	if err != nil {
 		return 0, nil, fmt.Errorf("failed to download subscription: %v", err)
 	}
-	sub.Description = header.Get("subscription-userinfo")
-
-	uriContent, err := util.Decode(string(body))
-	if err != nil {
-		return 0, nil, fmt.Errorf("failed to decode subscription: %v", err)
+	uriContent, err = util.Decode(string(body))
+	// if failed to decode, try again with user agent
+	if err != nil || len(uriContent.Configs) == 0 {
+		body, header, err = downloader.Download(ctx, link, map[string]string{
+			"User-Agent": "v2ray-core",
+		})
+		if err != nil {
+			return 0, nil, fmt.Errorf("failed to download subscription: %v", err)
+		}
+		uriContent, err = util.Decode(string(body))
+		if err != nil {
+			return 0, nil, fmt.Errorf("failed to decode subscription: %v", err)
+		}
 	}
-	if sub.Description != "" {
-		sub.Description = uriContent.Description
-	}
 
+	subscription.Description = header.Get("subscription-userinfo")
+	if subscription.Description != "" {
+		subscription.Description = uriContent.Description
+	}
 	// get all handlers of current subscription
 	var existingHandlers []*xsqlite.OutboundHandler
-	db.Where("sub_id = ?", sub.ID).Find(&existingHandlers)
+	db.Where("sub_id = ?", subscription.ID).Find(&existingHandlers)
 	var updatedHandlers []*xsqlite.OutboundHandler
 
 	for _, config := range uriContent.Configs {
@@ -292,7 +300,7 @@ func UpdateSubscription(sub *xsqlite.Subscription, db *gorm.DB, downloader downl
 			newHandler := xsqlite.OutboundHandler{
 				ID:     rand.Intn(math.MaxInt),
 				Config: configBytes,
-				SubId:  &sub.ID,
+				SubId:  &subscription.ID,
 			}
 			// add new handler to database
 			db.Create(&newHandler)
@@ -308,25 +316,26 @@ func UpdateSubscription(sub *xsqlite.Subscription, db *gorm.DB, downloader downl
 	}
 
 	// get description
-	if sub.Description == "" {
-		if parsedUrl1, err := url.Parse(sub.Link); err == nil {
+	if subscription.Description == "" {
+		if parsedUrl1, err := url.Parse(subscription.Link); err == nil {
 			q := parsedUrl1.Query()
 			q.Set("flag", "shadowrocket")
 			parsedUrl1.RawQuery = q.Encode()
-			content1, _, err := downloader.Download(ctx, parsedUrl1.String())
+			content1, _, err := downloader.Download(ctx, parsedUrl1.String(),
+				map[string]string{})
 			if err == nil {
 				uriContent1, err := util.Decode(string(content1))
 				if err == nil {
-					sub.Description = uriContent1.Description
+					subscription.Description = uriContent1.Description
 				}
 			}
 		}
 	}
 
-	sub.LastSuccessUpdate = sub.LastUpdate
-	db.Model(sub).Updates(map[string]interface{}{
-		"last_success_update": sub.LastSuccessUpdate,
-		"description":         sub.Description,
+	subscription.LastSuccessUpdate = subscription.LastUpdate
+	db.Model(subscription).Updates(map[string]interface{}{
+		"last_success_update": subscription.LastSuccessUpdate,
+		"description":         subscription.Description,
 	})
 	logger.Debug().Msg("done")
 	return len(uriContent.Configs), uriContent.FailedNodes, nil

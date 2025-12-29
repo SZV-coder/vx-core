@@ -218,8 +218,11 @@ func NewX(config *configs.TmConfig, opts ...Option) (*client.Client, error) {
 		// subscription
 		if config.Subscription != nil {
 			builder.requireFeature(func(r i.Router) {
-				sm := subscription.NewSubscriptionManager(time.Duration(config.Subscription.Interval)*time.Minute,
-					db, downloader.NewDownloader(r), subscription.WithPeriodicUpdate(config.Subscription.PeriodicUpdate))
+				sm := subscription.NewSubscriptionManager(
+					time.Duration(config.Subscription.Interval)*time.Minute,
+					db, downloader.NewDownloader(r),
+					subscription.WithPeriodicUpdate(
+						config.Subscription.PeriodicUpdate))
 				x.Subscription = sm
 				builder.addComponent(sm)
 			})

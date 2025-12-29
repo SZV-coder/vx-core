@@ -25,7 +25,7 @@ func NewDownloader(handlerPicker i.Router) *Downloader {
 	return &Downloader{HandlerPicker: handlerPicker}
 }
 
-func (d *Downloader) Download(ctx context.Context, u string) ([]byte, http.Header, error) {
+func (d *Downloader) Download(ctx context.Context, u string, headers map[string]string) ([]byte, http.Header, error) {
 	parsedUrl, err := url.Parse(u)
 	if err != nil {
 		return nil, nil, err
@@ -40,10 +40,11 @@ func (d *Downloader) Download(ctx context.Context, u string) ([]byte, http.Heade
 	if err != nil {
 		return nil, nil, err
 	}
-	return DownloadToMemoryResty(ctx, u, handler)
+	return DownloadToMemoryResty(ctx, u, headers, handler)
 }
 
-func DownloadToMemoryResty(ctx context.Context, url string, handlers ...i.Outbound) ([]byte, http.Header, error) {
+func DownloadToMemoryResty(ctx context.Context,
+	url string, headers map[string]string, handlers ...i.Outbound) ([]byte, http.Header, error) {
 	if len(handlers) == 0 {
 		return nil, nil, errors.New("no handlers")
 	}
@@ -52,9 +53,14 @@ func DownloadToMemoryResty(ctx context.Context, url string, handlers ...i.Outbou
 		client := resty.New()
 		client.SetTransport(util.HandlerToHttpClient(h).Transport)
 
-		resp, err := client.R().SetContext(ctx).
-			EnableTrace().
-			Get(url)
+		req := client.R().SetContext(ctx).EnableTrace()
+
+		// Apply custom headers if provided
+		for key, value := range headers {
+			req.SetHeader(key, value)
+		}
+
+		resp, err := req.Get(url)
 		if err != nil {
 			log.Err(err).Str("handler", h.Tag()).Msg("DownloadToMemoryResty handler failed")
 			continue
@@ -72,6 +78,6 @@ func NewDownloader0(handlers []i.Outbound) *Downloader0 {
 	return &Downloader0{handlers: handlers}
 }
 
-func (d *Downloader0) Download(ctx context.Context, url string) ([]byte, http.Header, error) {
-	return DownloadToMemoryResty(ctx, url, d.handlers...)
+func (d *Downloader0) Download(ctx context.Context, url string, headers map[string]string) ([]byte, http.Header, error) {
+	return DownloadToMemoryResty(ctx, url, headers, d.handlers...)
 }

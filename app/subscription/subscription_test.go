@@ -20,8 +20,8 @@ type MockDownloader struct {
 	mock.Mock
 }
 
-func (m *MockDownloader) Download(ctx context.Context, url string) ([]byte, http.Header, error) {
-	args := m.Called(url)
+func (m *MockDownloader) Download(ctx context.Context, url string, headers map[string]string) ([]byte, http.Header, error) {
+	args := m.Called(url, headers)
 	return args.Get(0).([]byte), args.Get(1).(http.Header), args.Error(2)
 }
 
