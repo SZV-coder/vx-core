@@ -1,8 +1,8 @@
 // Copyright 2025 5V Network LLC
 // SPDX-License-Identifier: AGPL-3.0
 
-//go:build ios || android
-// +build ios android
+//go:build ios || android || darwin
+// +build ios android darwin
 
 package clientgrpc
 
