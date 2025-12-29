@@ -174,15 +174,23 @@ func (a *Api) Deploy(ctx context.Context, req *DeployRequest) (*DeployResponse, 
 	defer a.DecreaseClientUser(sshClientCache)
 
 	sshClient := sshClientCache.client
+	var bbrError string
 	err = sshClient.EnableBbr()
 	if err != nil {
-		return nil, fmt.Errorf("failed to enable bbr: %w", err)
+		bbrError = fmt.Errorf("failed to enable bbr: %w", err).Error()
 	}
 
-	// disable host level firewall
-	err = sshClient.DisableFirewall()
-	if err != nil {
-		return nil, fmt.Errorf("failed to enable firewall: %w", err)
+	var firewallError string
+	if req.DisableFirewall {
+		// disable host level firewall
+		_, err = sshClient.DetectFirewall()
+		if err == nil {
+			err = sshClient.DisableFirewall()
+			if err != nil {
+				firewallError = fmt.Errorf("failed to disable firewall: %w", err).Error()
+			}
+		}
+
 	}
 
 	for name, content := range req.Files {
@@ -221,7 +229,10 @@ func (a *Api) Deploy(ctx context.Context, req *DeployRequest) (*DeployResponse, 
 		}
 	}
 
-	return &DeployResponse{}, nil
+	return &DeployResponse{
+		BbrError:      bbrError,
+		FirewallError: firewallError,
+	}, nil
 }
 
 func (a *Api) ServerAction(ctx context.Context, req *ServerActionRequest) (*ServerActionResponse, error) {

@@ -203,8 +203,13 @@ message DeployRequest {
   bytes xray_config = 3;
   map<string, bytes> files = 4;
   x.ServerConfig vx_config = 5;
+  bool disable_firewall = 6;
 }
 message DeployResponse {
+  // if not empty, it means failed to enable bbr
+  string bbr_error = 1;
+  // if not empty, it means failed to disable firewall
+  string firewall_error = 2;
 }
 message ServerActionRequest {
   enum Action {

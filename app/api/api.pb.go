@@ -1487,14 +1487,15 @@ func (x *MonitorServerResponse) GetNetOutUsage() uint64 {
 }
 
 type DeployRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	SshConfig      *ServerSshConfig       `protobuf:"bytes,1,opt,name=ssh_config,json=sshConfig,proto3" json:"ssh_config,omitempty"`
-	HysteriaConfig []byte                 `protobuf:"bytes,2,opt,name=hysteria_config,json=hysteriaConfig,proto3" json:"hysteria_config,omitempty"`
-	XrayConfig     []byte                 `protobuf:"bytes,3,opt,name=xray_config,json=xrayConfig,proto3" json:"xray_config,omitempty"`
-	Files          map[string][]byte      `protobuf:"bytes,4,rep,name=files,proto3" json:"files,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	VxConfig       *server.ServerConfig   `protobuf:"bytes,5,opt,name=vx_config,json=vxConfig,proto3" json:"vx_config,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	SshConfig       *ServerSshConfig       `protobuf:"bytes,1,opt,name=ssh_config,json=sshConfig,proto3" json:"ssh_config,omitempty"`
+	HysteriaConfig  []byte                 `protobuf:"bytes,2,opt,name=hysteria_config,json=hysteriaConfig,proto3" json:"hysteria_config,omitempty"`
+	XrayConfig      []byte                 `protobuf:"bytes,3,opt,name=xray_config,json=xrayConfig,proto3" json:"xray_config,omitempty"`
+	Files           map[string][]byte      `protobuf:"bytes,4,rep,name=files,proto3" json:"files,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	VxConfig        *server.ServerConfig   `protobuf:"bytes,5,opt,name=vx_config,json=vxConfig,proto3" json:"vx_config,omitempty"`
+	DisableFirewall bool                   `protobuf:"varint,6,opt,name=disable_firewall,json=disableFirewall,proto3" json:"disable_firewall,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *DeployRequest) Reset() {
@@ -1562,8 +1563,19 @@ func (x *DeployRequest) GetVxConfig() *server.ServerConfig {
 	return nil
 }
 
+func (x *DeployRequest) GetDisableFirewall() bool {
+	if x != nil {
+		return x.DisableFirewall
+	}
+	return false
+}
+
 type DeployResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// if not empty, it means failed to enable bbr
+	BbrError string `protobuf:"bytes,1,opt,name=bbr_error,json=bbrError,proto3" json:"bbr_error,omitempty"`
+	// if not empty, it means failed to disable firewall
+	FirewallError string `protobuf:"bytes,2,opt,name=firewall_error,json=firewallError,proto3" json:"firewall_error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1596,6 +1608,20 @@ func (x *DeployResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DeployResponse.ProtoReflect.Descriptor instead.
 func (*DeployResponse) Descriptor() ([]byte, []int) {
 	return file_app_api_api_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *DeployResponse) GetBbrError() string {
+	if x != nil {
+		return x.BbrError
+	}
+	return ""
+}
+
+func (x *DeployResponse) GetFirewallError() string {
+	if x != nil {
+		return x.FirewallError
+	}
+	return ""
 }
 
 type ServerActionRequest struct {
@@ -3951,7 +3977,7 @@ const file_app_api_api_proto_rawDesc = "" +
 	"\rnet_out_speed\x18\a \x01(\rR\vnetOutSpeed\x12 \n" +
 	"\fnet_in_usage\x18\b \x01(\x04R\n" +
 	"netInUsage\x12\"\n" +
-	"\rnet_out_usage\x18\t \x01(\x04R\vnetOutUsage\"\xaf\x02\n" +
+	"\rnet_out_usage\x18\t \x01(\x04R\vnetOutUsage\"\xda\x02\n" +
 	"\rDeployRequest\x125\n" +
 	"\n" +
 	"ssh_config\x18\x01 \x01(\v2\x16.x.api.ServerSshConfigR\tsshConfig\x12'\n" +
@@ -3959,12 +3985,15 @@ const file_app_api_api_proto_rawDesc = "" +
 	"\vxray_config\x18\x03 \x01(\fR\n" +
 	"xrayConfig\x125\n" +
 	"\x05files\x18\x04 \x03(\v2\x1f.x.api.DeployRequest.FilesEntryR\x05files\x12,\n" +
-	"\tvx_config\x18\x05 \x01(\v2\x0f.x.ServerConfigR\bvxConfig\x1a8\n" +
+	"\tvx_config\x18\x05 \x01(\v2\x0f.x.ServerConfigR\bvxConfig\x12)\n" +
+	"\x10disable_firewall\x18\x06 \x01(\bR\x0fdisableFirewall\x1a8\n" +
 	"\n" +
 	"FilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\"\x10\n" +
-	"\x0eDeployResponse\"\xba\x01\n" +
+	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\"T\n" +
+	"\x0eDeployResponse\x12\x1b\n" +
+	"\tbbr_error\x18\x01 \x01(\tR\bbbrError\x12%\n" +
+	"\x0efirewall_error\x18\x02 \x01(\tR\rfirewallError\"\xba\x01\n" +
 	"\x13ServerActionRequest\x129\n" +
 	"\x06action\x18\x01 \x01(\x0e2!.x.api.ServerActionRequest.ActionR\x06action\x125\n" +
 	"\n" +
