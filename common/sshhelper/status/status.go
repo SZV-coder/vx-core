@@ -84,7 +84,7 @@ func GetStatusStream(ctx context.Context, client *sshhelper.Client, interval tim
 				}
 				status, err := parser.parse(output)
 				if err != nil {
-					log.Printf("failed to parse status: %s", err)
+					log.Printf("failed to parse status: %s. output: %s", err, output)
 					return
 				}
 				ch <- status

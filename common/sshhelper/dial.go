@@ -62,6 +62,16 @@ func Dial(s *DialConfig) (*Client, []byte, error) {
 		}
 	} else if s.Password != "" {
 		authMethods = append(authMethods, ssh.Password(s.Password))
+		// Add both password and keyboard-interactive methods
+		// Some servers prefer keyboard-interactive over password
+		authMethods = append(authMethods, ssh.KeyboardInteractive(func(user, instruction string, questions []string, echos []bool) ([]string, error) {
+			// Answer all questions with the password
+			answers := make([]string, len(questions))
+			for i := range answers {
+				answers[i] = s.Password
+			}
+			return answers, nil
+		}))
 	}
 
 	var hostKeyCallback ssh.HostKeyCallback
