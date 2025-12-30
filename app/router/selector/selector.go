@@ -292,6 +292,7 @@ func (s *Selector) updateBalancerHandlers(handlerToBeUsed []i.HandlerWith6Info) 
 }
 
 func (s *Selector) OnHandlerError(tag string, err error) {
+	log.Debug().Str("tag", tag).Err(err).Msg("on handler error")
 	s.handlersLock.RLock()
 	var handler *handler
 	for _, h := range s.handlersBeingUsed {
@@ -305,7 +306,6 @@ func (s *Selector) OnHandlerError(tag string, err error) {
 	if handler == nil {
 		return
 	}
-
 	if handler.GetOk() > 0 {
 		TestHandlerUsable(s.ctx, s.tester, handler)
 		usable := handler.outHandler.GetOk() > 0
