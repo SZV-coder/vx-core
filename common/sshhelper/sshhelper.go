@@ -9,6 +9,12 @@ import (
 
 // getSudoCmd changes cmd to a sudo cmd if password is not empty
 func (c *Client) getSudoCmd(cmd string) string {
+	if c.isRoot {
+		return cmd
+	}
+	if c.hasPasswordlessSudo {
+		return "sudo " + cmd
+	}
 	if c.Password == "" {
 		return "sudo " + cmd
 	}

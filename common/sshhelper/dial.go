@@ -16,6 +16,9 @@ type Client struct {
 	*ssh.Client
 	Password string
 
+	isRoot              bool
+	hasPasswordlessSudo bool
+
 	sync.Mutex
 	sftpClient *sftp.Client
 }
@@ -103,7 +106,20 @@ func Dial(s *DialConfig) (*Client, []byte, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to ssh.Dial: %w", err)
 	}
-	return &Client{Client: client, Password: s.Password}, hostKey, nil
+	c := &Client{Client: client, Password: s.Password}
+
+	c.isRoot, err = c.IsRoot()
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to check if user is root: %w", err)
+	}
+	if !c.isRoot {
+		c.hasPasswordlessSudo, err = c.HasPasswordlessSudo()
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to check if user has passwordless sudo: %w", err)
+		}
+	}
+
+	return c, hostKey, nil
 }
 
 func ParsePublicKeyFromAny(keyData []byte) (ssh.PublicKey, error) {
