@@ -8,9 +8,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/golang/protobuf/ptypes/any"
 	"net/url"
+	"strconv"
 	"strings"
+
+	"github.com/golang/protobuf/ptypes/any"
 
 	"github.com/5vnetwork/vx-core/app/configs"
 	"github.com/5vnetwork/vx-core/app/util/sub"
@@ -223,10 +225,23 @@ func setProtocol(config *configs.TransportConfig, query url.Values) error {
 			}
 			config.Protocol = &configs.TransportConfig_Tcp{Tcp: tcpConfig}
 		case "ws":
+			path := query.Get("path")
+			maxEarlyData := 0
+			if u, err := url.Parse(path); err == nil {
+				q := u.Query()
+				if ed := q.Get("ed"); ed != "" {
+					maxEarlyData, _ = strconv.Atoi(ed)
+					q.Del("ed")
+					u.RawQuery = q.Encode()
+					path = u.String()
+				}
+			}
 			config.Protocol = &configs.TransportConfig_Websocket{
 				Websocket: &websocket.WebsocketConfig{
-					Host: query.Get("host"),
-					Path: query.Get("path"),
+					Host:                query.Get("host"),
+					Path:                path,
+					MaxEarlyData:        int32(maxEarlyData),
+					EarlyDataHeaderName: "Sec-WebSocket-Protocol",
 				},
 			}
 		case "grpc":
