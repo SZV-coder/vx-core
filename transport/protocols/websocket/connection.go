@@ -162,7 +162,7 @@ func (c *connection) Close() error {
 
 func (c *connection) LocalAddr() net.Addr {
 	if c.shouldWait {
-		<-c.delayedDialFinish.Done()
+		// <-c.delayedDialFinish.Done()
 		if c.conn == nil {
 			log.Warn().Msg("websocket transport is not materialized when LocalAddr() is called")
 			return &net.UnixAddr{
