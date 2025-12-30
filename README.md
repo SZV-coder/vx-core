@@ -76,7 +76,7 @@ See [LICENSE](LICENSE) file for details.
 
 The code contains in "proxy/vless", "tranport/security/reality",
 "tranport/protocol/splithttp", "app/util/x25519", "api/reali_scanner",
-"tranport/security/tls/ech" folder is modified from
+"tranport/security/tls/ech", "tranport/security/tls/utls" folder is modified from
 [Xray-core](https://github.com/XTLS/Xray-core). It is distributed under the same
 licence(Mozilla Public License 2.0) as the original project.
 

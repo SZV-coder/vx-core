@@ -71,7 +71,7 @@ vx run --config config.json
 
 ## License Compliance
 
-代码中包含在 "proxy/vless"、"tranport/security/reality"、"tranport/protocol/splithttp"、"app/util/x25519"、"api/reali_scanner"、"tranport/security/tls/ech" 文件夹中的代码修改自 [Xray-core](https://github.com/XTLS/Xray-core)。它按照与原始项目相同的许可证（Mozilla Public License 2.0）分发。
+代码中包含在 "proxy/vless"、"tranport/security/reality"、"tranport/protocol/splithttp"、"app/util/x25519"、"api/reali_scanner"、"tranport/security/tls/ech", "tranport/security/tls/utls" 文件夹中的代码修改自 [Xray-core](https://github.com/XTLS/Xray-core)。它按照与原始项目相同的许可证（Mozilla Public License 2.0）分发。
 
 ## 支持
 
