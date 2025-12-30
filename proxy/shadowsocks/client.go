@@ -64,7 +64,7 @@ func (c *Client) HandleFlow(ctx context.Context, dst net.Destination, rw buf.Rea
 		}
 		defer conn.Close()
 
-		log.Ctx(ctx).Debug().Str("laddr", conn.LocalAddr().String()).Msg("shadowsocks dial ok")
+		log.Ctx(ctx).Debug().Any("local addr", conn.LocalAddr()).Msg("shadowsocks dial ok")
 
 		request.Account = memoryAccount
 		requestDone := func() error {

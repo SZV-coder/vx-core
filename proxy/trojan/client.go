@@ -56,11 +56,7 @@ func (c *Client) HandleFlow(ctx context.Context, dst net.Destination, rw buf.Rea
 	}
 	defer conn.Close()
 
-	if conn.LocalAddr() != nil && conn.RemoteAddr() != nil {
-		log.Ctx(ctx).Debug().Str("laddr", conn.LocalAddr().String()).Str("raddr", conn.RemoteAddr().String()).Msg("trojan dialed ok")
-	} else {
-		log.Ctx(ctx).Warn().Msg("trojan dialed ok, but addr is nil")
-	}
+	log.Ctx(ctx).Debug().Any("local addr", conn.LocalAddr()).Msg("trojan dialed ok")
 
 	var bodyWriter buf.Writer
 	bufferWriter := buf.NewBufferedWriter(buf.NewWriter(conn))

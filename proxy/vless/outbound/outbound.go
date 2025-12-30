@@ -234,11 +234,7 @@ func (h *Handler) handle(ctx context.Context, dst net.Destination, rw buf.Reader
 	}
 	defer conn.Close()
 
-	if conn.LocalAddr() != nil {
-		log.Ctx(ctx).Debug().Str("laddr", conn.LocalAddr().String()).Msg("vless dial ok")
-	} else {
-		log.Ctx(ctx).Warn().Msg("vless dial ok, but local addr is nil")
-	}
+	log.Ctx(ctx).Debug().Any("laddr", conn.LocalAddr()).Msg("vless dial ok")
 
 	target := ob.Target
 

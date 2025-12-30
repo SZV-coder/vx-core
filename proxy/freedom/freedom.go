@@ -48,7 +48,7 @@ func (c *FreedomHandler) HandleFlow(ctx context.Context, dst net.Destination, rw
 	}
 	defer conn.Close()
 
-	log.Ctx(ctx).Debug().Str("laddr", conn.LocalAddr().String()).Msg("freedom.Client: dial ok")
+	log.Ctx(ctx).Debug().Any("local addr", conn.LocalAddr()).Msg("freedom.Client: dial ok")
 
 	writer := buf.NewWriter(conn)
 	reader := buf.NewReader(conn)
@@ -61,7 +61,7 @@ func (c *FreedomHandler) HandlePacketConn(ctx context.Context, dst net.Destinati
 		return fmt.Errorf("failed to dial packet conn: %w", err)
 	}
 	defer pc.Close()
-	log.Ctx(ctx).Debug().Str("laddr", pc.LocalAddr().String()).Msg("freedom listen pc succ")
+	log.Ctx(ctx).Debug().Any("local addr", pc.LocalAddr()).Msg("freedom listen pc succ")
 
 	return helper.RelayUDPPacketConn(ctx, rw,
 		&domainToIpPacketConn{

@@ -76,7 +76,7 @@ func (c *Client) HandleFlow(ctx context.Context, dst net.Destination, rw buf.Rea
 		return fmt.Errorf("cannot connected to a socks server, %w", err)
 	}
 
-	log.Ctx(ctx).Debug().Str("laddr", conn.LocalAddr().String()).Msg("socks client dial ok")
+	log.Ctx(ctx).Debug().Any("local addr", conn.LocalAddr()).Msg("socks client dial ok")
 	defer conn.Close()
 
 	request := &protocol.RequestHeader{

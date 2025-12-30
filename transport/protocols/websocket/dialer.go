@@ -37,8 +37,9 @@ func (d *websocketDialer) Dial(ctx context.Context, dest net.Destination) (net.C
 }
 
 // Dial dials a WebSocket connection to the given destination.
-func Dial(ctx context.Context, dest net.Destination, config *WebsocketConfig, securityConfig security.Engine, so i.Dialer) (net.Conn, error) {
-	log.Ctx(ctx).Debug().Str("dst", dest.String()).Msg("websocket creating connection to ")
+func Dial(ctx context.Context, dest net.Destination, config *WebsocketConfig,
+	securityConfig security.Engine, so i.Dialer) (net.Conn, error) {
+	log.Ctx(ctx).Debug().Any("dst", dest).Msg("websocket creating connection to ")
 
 	dialer := &websocket.Dialer{
 		NetDial: func(network, addr string) (net.Conn, error) {
