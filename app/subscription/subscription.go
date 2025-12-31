@@ -243,7 +243,7 @@ func UpdateSubscription(subscription *xsqlite.Subscription, db *gorm.DB, downloa
 	}
 
 	subscription.Description = header.Get("subscription-userinfo")
-	if subscription.Description != "" {
+	if subscription.Description == "" {
 		subscription.Description = uriContent.Description
 	}
 	// get all handlers of current subscription
