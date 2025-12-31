@@ -72,6 +72,8 @@ message SelectorConfig {
     repeated int64 handler_ids = 6;
     bool selected = 7;
     bool all = 8;
+    repeated string sub_strings = 9;
+    repeated string country_codes = 10;
   }
   // how to select handlers to be used
   enum SelectingStrategy {

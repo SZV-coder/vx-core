@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 
 	configs "github.com/5vnetwork/vx-core/app/configs"
+	"github.com/5vnetwork/vx-core/i"
 	"github.com/5vnetwork/vx-core/transport"
 	"github.com/5vnetwork/vx-core/transport/dlhelper"
 	"github.com/5vnetwork/vx-core/transport/protocols/tcp"
@@ -46,17 +47,20 @@ func TransportSecurityConfig(config interface{}) interface{} {
 	return securityConfig
 }
 
-func TransportConfigToMemoryConfig(config *configs.TransportConfig, readCounter, writeCounter *atomic.Uint64) *transport.Config {
+func TransportConfigToMemoryConfig(config *configs.TransportConfig,
+	readCounter, writeCounter *atomic.Uint64, dnsServer i.ECHResolver) *transport.Config {
 	if config == nil {
 		return &transport.Config{
-			Protocol: &tcp.TcpConfig{},
-			Socket:   &dlhelper.SocketSetting{},
+			Protocol:  &tcp.TcpConfig{},
+			Socket:    &dlhelper.SocketSetting{},
+			DnsServer: dnsServer,
 		}
 	}
 	return &transport.Config{
-		Socket:   SocketConfigToMemoryConfig(config.GetSocket(), readCounter, writeCounter),
-		Protocol: TransportProtocolConfig(config.GetProtocol()),
-		Security: TransportSecurityConfig(config.GetSecurity()),
+		Socket:    SocketConfigToMemoryConfig(config.GetSocket(), readCounter, writeCounter),
+		Protocol:  TransportProtocolConfig(config.GetProtocol()),
+		Security:  TransportSecurityConfig(config.GetSecurity()),
+		DnsServer: dnsServer,
 	}
 }
 

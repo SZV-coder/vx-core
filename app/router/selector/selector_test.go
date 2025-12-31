@@ -1472,7 +1472,7 @@ func TestSelector_OnHandlerSpeedChanged(t *testing.T) {
 
 	config := selectorConfig{
 		Tag:      "test-selector",
-		Strategy: &allStrategy{}, // Use allStrategy so all handlers are selected
+		Strategy: &highestThroughputStrategy{}, // Use allStrategy so all handlers are selected
 		Filter:   filter,
 		Balancer: balancer,
 		Tester:   tester,
@@ -1486,7 +1486,8 @@ func TestSelector_OnHandlerSpeedChanged(t *testing.T) {
 	sel.handlersLock.RLock()
 	initialCount := len(sel.handlersBeingUsed)
 	sel.handlersLock.RUnlock()
-	assert.Equal(t, 2, initialCount)
+	assert.Equal(t, 1, initialCount)
+	assert.Equal(t, "handler2", sel.handlersBeingUsed[0].Name())
 
 	// Act - Update handler1's speed
 	sel.OnHandlerSpeedChanged("handler1", 5000)

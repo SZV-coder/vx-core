@@ -229,6 +229,18 @@ func (f *dbFilter) getHandlers() ([]*xsqlite.OutboundHandler, error) {
 					continue F
 				}
 			}
+			for _, subString := range f.filterConfig.GetSubStrings() {
+				if strings.Contains(tag, subString) {
+					handlers[h.ID] = h
+					continue F
+				}
+			}
+			for _, countryCode := range f.filterConfig.GetCountryCodes() {
+				if h.CountryCode == countryCode {
+					handlers[h.ID] = h
+					continue F
+				}
+			}
 			for _, filterTag := range f.filterConfig.GetTags() {
 				if tag == filterTag {
 					handlers[h.ID] = h

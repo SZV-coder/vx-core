@@ -399,15 +399,16 @@ func (s *Selector) OnHandlerChanged() {
 
 func (s *Selector) OnHandlerSpeedChanged(tag string, speed int32) {
 	s.handlersLock.RLock()
-	index := slices.IndexFunc(s.handlersBeingUsed, func(h *handler) bool {
-		return h.Tag() == tag
+	index := slices.IndexFunc(s.filteredHandlers, func(h outHandler) bool {
+		return h.Name() == tag
 	})
-	s.handlersLock.RUnlock()
 	if index == -1 {
+		s.handlersLock.RUnlock()
 		return
 	}
+	handler := s.filteredHandlers[index]
+	s.handlersLock.RUnlock()
 
-	handler := s.handlersBeingUsed[index]
 	handler.SetOk(int(speed))
 	handler.SetSpeed(int(speed))
 	if _, ok := s.strategy.(*highestThroughputStrategy); ok {

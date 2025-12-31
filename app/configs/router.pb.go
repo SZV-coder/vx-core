@@ -640,11 +640,13 @@ type SelectorConfig_Filter struct {
 	Tags      []string `protobuf:"bytes,2,rep,name=tags,proto3" json:"tags,omitempty"`
 	GroupTags []string `protobuf:"bytes,3,rep,name=group_tags,json=groupTags,proto3" json:"group_tags,omitempty"`
 	// If true, a handler will be selected if it does not match all conditions
-	Inverse       bool    `protobuf:"varint,4,opt,name=inverse,proto3" json:"inverse,omitempty"`
-	SubIds        []int64 `protobuf:"varint,5,rep,packed,name=sub_ids,json=subIds,proto3" json:"sub_ids,omitempty"`
-	HandlerIds    []int64 `protobuf:"varint,6,rep,packed,name=handler_ids,json=handlerIds,proto3" json:"handler_ids,omitempty"`
-	Selected      bool    `protobuf:"varint,7,opt,name=selected,proto3" json:"selected,omitempty"`
-	All           bool    `protobuf:"varint,8,opt,name=all,proto3" json:"all,omitempty"`
+	Inverse       bool     `protobuf:"varint,4,opt,name=inverse,proto3" json:"inverse,omitempty"`
+	SubIds        []int64  `protobuf:"varint,5,rep,packed,name=sub_ids,json=subIds,proto3" json:"sub_ids,omitempty"`
+	HandlerIds    []int64  `protobuf:"varint,6,rep,packed,name=handler_ids,json=handlerIds,proto3" json:"handler_ids,omitempty"`
+	Selected      bool     `protobuf:"varint,7,opt,name=selected,proto3" json:"selected,omitempty"`
+	All           bool     `protobuf:"varint,8,opt,name=all,proto3" json:"all,omitempty"`
+	SubStrings    []string `protobuf:"bytes,9,rep,name=sub_strings,json=subStrings,proto3" json:"sub_strings,omitempty"`
+	CountryCodes  []string `protobuf:"bytes,10,rep,name=country_codes,json=countryCodes,proto3" json:"country_codes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -735,6 +737,20 @@ func (x *SelectorConfig_Filter) GetAll() bool {
 	return false
 }
 
+func (x *SelectorConfig_Filter) GetSubStrings() []string {
+	if x != nil {
+		return x.SubStrings
+	}
+	return nil
+}
+
+func (x *SelectorConfig_Filter) GetCountryCodes() []string {
+	if x != nil {
+		return x.CountryCodes
+	}
+	return nil
+}
+
 var File_protos_router_proto protoreflect.FileDescriptor
 
 const file_protos_router_proto_rawDesc = "" +
@@ -771,14 +787,14 @@ const file_protos_router_proto_rawDesc = "" +
 	"\tmatch_all\x18\x17 \x01(\bR\bmatchAll\x12\x19\n" +
 	"\bapp_tags\x18\x18 \x03(\tR\aappTags\x12\x19\n" +
 	"\ball_tags\x18\x19 \x03(\tR\aallTags\x12\x1c\n" +
-	"\tprotocols\x18\x1c \x03(\tR\tprotocols\"\xa6\x05\n" +
+	"\tprotocols\x18\x1c \x03(\tR\tprotocols\"\xec\x05\n" +
 	"\x0eSelectorConfig\x12\x10\n" +
 	"\x03tag\x18\x01 \x01(\tR\x03tag\x120\n" +
 	"\x06filter\x18\x02 \x01(\v2\x18.x.SelectorConfig.FilterR\x06filter\x12?\n" +
 	"\bstrategy\x18\x03 \x01(\x0e2#.x.SelectorConfig.SelectingStrategyR\bstrategy\x12L\n" +
 	"\x10balance_strategy\x18\x04 \x01(\x0e2!.x.SelectorConfig.BalanceStrategyR\x0fbalanceStrategy\x12#\n" +
 	"\rland_handlers\x18\x06 \x03(\x03R\flandHandlers\x12$\n" +
-	"\x0eselect_from_om\x18\a \x01(\bR\fselectFromOm\x1a\xd9\x01\n" +
+	"\x0eselect_from_om\x18\a \x01(\bR\fselectFromOm\x1a\x9f\x02\n" +
 	"\x06Filter\x12\x1a\n" +
 	"\bprefixes\x18\x01 \x03(\tR\bprefixes\x12\x12\n" +
 	"\x04tags\x18\x02 \x03(\tR\x04tags\x12\x1d\n" +
@@ -789,7 +805,11 @@ const file_protos_router_proto_rawDesc = "" +
 	"\vhandler_ids\x18\x06 \x03(\x03R\n" +
 	"handlerIds\x12\x1a\n" +
 	"\bselected\x18\a \x01(\bR\bselected\x12\x10\n" +
-	"\x03all\x18\b \x01(\bR\x03all\"o\n" +
+	"\x03all\x18\b \x01(\bR\x03all\x12\x1f\n" +
+	"\vsub_strings\x18\t \x03(\tR\n" +
+	"subStrings\x12#\n" +
+	"\rcountry_codes\x18\n" +
+	" \x03(\tR\fcountryCodes\"o\n" +
 	"\x11SelectingStrategy\x12\a\n" +
 	"\x03ALL\x10\x00\x12\n" +
 	"\n" +
