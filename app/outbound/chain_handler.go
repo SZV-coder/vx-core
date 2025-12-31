@@ -29,8 +29,8 @@ type ChainHandlerConfig struct {
 	DF                          transport.DialerFactory
 	IPResolverForRequestAddress i.IPResolver
 	// used to lookup ech config
-	DnsServer  i.ECHResolver
-	RejectQuic bool
+	EchResolver i.ECHResolver
+	RejectQuic  bool
 }
 
 func NewChainHandler(config *ChainHandlerConfig) (*ChainHandler, error) {
@@ -57,8 +57,8 @@ func NewChainHandler(config *ChainHandlerConfig) (*ChainHandler, error) {
 		handler, err := NewOutHandler(&Config{
 			OutboundHandlerConfig: handlerConfig,
 			DialerFactory: &transport.HandlerDialerFactory{
-				Handler:   handlers[len(config.Handlers)-i],
-				DnsServer: config.DnsServer,
+				Handler:     handlers[len(config.Handlers)-i],
+				EchResolver: config.EchResolver,
 			},
 			Policy:                      config.Policy,
 			IPResolver:                  config.IPResolver,

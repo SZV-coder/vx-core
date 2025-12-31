@@ -84,7 +84,7 @@ func NewInbound(config *configs.ProxyInboundConfig, ha i.Handler, tp i.TimeoutSe
 		tag: config.Tag,
 	}
 	address := net.ParseAddress(config.Address)
-	transport := create.TransportConfigToMemoryConfig(config.GetTransport(), nil, nil)
+	transport := create.TransportConfigToMemoryConfig(config.GetTransport(), nil, nil, nil)
 	ports := make([]uint16, 0, 10)
 	if config.Port != 0 {
 		ports = append(ports, uint16(config.Port))

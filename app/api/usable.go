@@ -49,7 +49,7 @@ func (a *Api) HandlerTest(ctx context.Context, req *HandlerUsableRequest) (ret H
 		DialerFactory: a.getDialerFactory(),
 		Policy:        policy.New(),
 		IPResolver:    a.getIPResolver(),
-		DnsServer:     a.dnsServer,
+		EchResolver:   a.dnsServer,
 	})
 	if err != nil {
 		logger.Debug().Msgf("Handler %s create handler err: %v", req.Handler.GetTag(), err)

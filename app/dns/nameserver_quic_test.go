@@ -7,13 +7,11 @@ import (
 
 	"github.com/5vnetwork/vx-core/common/net"
 	"github.com/5vnetwork/vx-core/proxy/freedom"
-	"github.com/5vnetwork/vx-core/test"
 	"github.com/5vnetwork/vx-core/transport"
 	d "github.com/miekg/dns"
 )
 
 func TestNameServerQuic(t *testing.T) {
-	test.InitZeroLog()
 	doh, _ := NewQUICNameServer(QuicNameServerOption{
 		Name:        "test",
 		Destination: net.UDPDestination(net.DomainAddress("dns.adguard.com"), 853),

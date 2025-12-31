@@ -74,6 +74,25 @@ func (d *InternalDns) LookupIPv6(ctx context.Context, host string) ([]net.IP, er
 	return d.DnsServerToIPResolver.LookupIPv6(ctx, host)
 }
 
+func (d *InternalDns) LookupECH(ctx context.Context, domain string) ([]byte, error) {
+	if d.StaticDns != nil {
+		msg := new(dns.Msg)
+		msg.SetQuestion(dns.Fqdn(domain), dns.TypeHTTPS)
+		if resp, ok := d.StaticDns.ReplyFor(msg); ok {
+			for _, answer := range resp.Answer {
+				if https, ok := answer.(*dns.HTTPS); ok && https.Hdr.Name == dns.Fqdn(domain) {
+					for _, v := range https.Value {
+						if echConfig, ok := v.(*dns.SVCBECHConfig); ok {
+							return echConfig.ECH, nil
+						}
+					}
+				}
+			}
+		}
+	}
+	return d.DnsServerToIPResolver.LookupECH(ctx, domain)
+}
+
 func (d *InternalDns) LookupIP(ctx context.Context, host string) ([]net.IP, error) {
 	// return d.LookupIPSpeed(ctx, host)
 	var ipv6s []net.IP

@@ -288,7 +288,7 @@ func (a *Api) SpeedTest(req *SpeedTestRequest, in Api_SpeedTestServer) error {
 				DialerFactory: a.getDialerFactory(),
 				Policy:        policy.New(),
 				IPResolver:    a.getIPResolver(),
-				DnsServer:     a.dnsServer,
+				EchResolver:   a.dnsServer,
 			})
 			if err != nil {
 				log.Debug().Err(err).Str("tag", t.GetTag()).Msg("failed to create outbound handler")
@@ -341,7 +341,7 @@ func (a *Api) UpdateSubscription(ctx context.Context, req *UpdateSubscriptionReq
 			DialerFactory: a.getDialerFactory(),
 			Policy:        policy.New(),
 			IPResolver:    a.getIPResolver(),
-			DnsServer:     a.dnsServer,
+			EchResolver:   a.dnsServer,
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("failed to create outbound handler")

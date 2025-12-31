@@ -14,7 +14,8 @@ import (
 )
 
 func Netmon(config *configs.TmConfig, builder *Builder, client *client.Client) error {
-	if builder.getFeature(reflect.TypeOf((*i.DefaultInterfaceInfo)(nil)).Elem()) != nil {
+	if netmon := builder.getFeature(reflect.TypeOf((*i.DefaultInterfaceInfo)(nil)).Elem()); netmon != nil {
+		client.NetMon = netmon.(i.DefaultInterfaceInfo)
 		return nil
 	}
 
@@ -23,6 +24,7 @@ func Netmon(config *configs.TmConfig, builder *Builder, client *client.Client) e
 	if err != nil {
 		return fmt.Errorf("failed to create tun interface monitor: %w", err)
 	}
+	client.NetMon = monitor
 	common.Must(builder.addComponent(monitor))
 	return nil
 }

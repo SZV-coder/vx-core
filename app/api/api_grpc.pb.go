@@ -31,6 +31,7 @@ const (
 	Api_Decode_FullMethodName                        = "/x.api.Api/Decode"
 	Api_Deploy_FullMethodName                        = "/x.api.Api/Deploy"
 	Api_GenerateCert_FullMethodName                  = "/x.api.Api/GenerateCert"
+	Api_GenerateECH_FullMethodName                   = "/x.api.Api/GenerateECH"
 	Api_GetCertDomain_FullMethodName                 = "/x.api.Api/GetCertDomain"
 	Api_AddInbound_FullMethodName                    = "/x.api.Api/AddInbound"
 	Api_UploadLog_FullMethodName                     = "/x.api.Api/UploadLog"
@@ -74,6 +75,7 @@ type ApiClient interface {
 	Decode(ctx context.Context, in *DecodeRequest, opts ...grpc.CallOption) (*DecodeResponse, error)
 	Deploy(ctx context.Context, in *DeployRequest, opts ...grpc.CallOption) (*DeployResponse, error)
 	GenerateCert(ctx context.Context, in *GenerateCertRequest, opts ...grpc.CallOption) (*GenerateCertResponse, error)
+	GenerateECH(ctx context.Context, in *GenerateECHRequest, opts ...grpc.CallOption) (*GenerateECHResponse, error)
 	GetCertDomain(ctx context.Context, in *GetCertDomainRequest, opts ...grpc.CallOption) (*GetCertDomainResponse, error)
 	AddInbound(ctx context.Context, in *AddInboundRequest, opts ...grpc.CallOption) (*AddInboundResponse, error)
 	UploadLog(ctx context.Context, in *UploadLogRequest, opts ...grpc.CallOption) (*UploadLogResponse, error)
@@ -297,6 +299,16 @@ func (c *apiClient) GenerateCert(ctx context.Context, in *GenerateCertRequest, o
 	return out, nil
 }
 
+func (c *apiClient) GenerateECH(ctx context.Context, in *GenerateECHRequest, opts ...grpc.CallOption) (*GenerateECHResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GenerateECHResponse)
+	err := c.cc.Invoke(ctx, Api_GenerateECH_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *apiClient) GetCertDomain(ctx context.Context, in *GetCertDomainRequest, opts ...grpc.CallOption) (*GetCertDomainResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCertDomainResponse)
@@ -473,6 +485,7 @@ type ApiServer interface {
 	Decode(context.Context, *DecodeRequest) (*DecodeResponse, error)
 	Deploy(context.Context, *DeployRequest) (*DeployResponse, error)
 	GenerateCert(context.Context, *GenerateCertRequest) (*GenerateCertResponse, error)
+	GenerateECH(context.Context, *GenerateECHRequest) (*GenerateECHResponse, error)
 	GetCertDomain(context.Context, *GetCertDomainRequest) (*GetCertDomainResponse, error)
 	AddInbound(context.Context, *AddInboundRequest) (*AddInboundResponse, error)
 	UploadLog(context.Context, *UploadLogRequest) (*UploadLogResponse, error)
@@ -551,6 +564,9 @@ func (UnimplementedApiServer) Deploy(context.Context, *DeployRequest) (*DeployRe
 }
 func (UnimplementedApiServer) GenerateCert(context.Context, *GenerateCertRequest) (*GenerateCertResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateCert not implemented")
+}
+func (UnimplementedApiServer) GenerateECH(context.Context, *GenerateECHRequest) (*GenerateECHResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateECH not implemented")
 }
 func (UnimplementedApiServer) GetCertDomain(context.Context, *GetCertDomainRequest) (*GetCertDomainResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCertDomain not implemented")
@@ -928,6 +944,24 @@ func _Api_GenerateCert_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Api_GenerateECH_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateECHRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).GenerateECH(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Api_GenerateECH_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).GenerateECH(ctx, req.(*GenerateECHRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Api_GetCertDomain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCertDomainRequest)
 	if err := dec(in); err != nil {
@@ -1268,6 +1302,10 @@ var Api_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateCert",
 			Handler:    _Api_GenerateCert_Handler,
+		},
+		{
+			MethodName: "GenerateECH",
+			Handler:    _Api_GenerateECH_Handler,
 		},
 		{
 			MethodName: "GetCertDomain",

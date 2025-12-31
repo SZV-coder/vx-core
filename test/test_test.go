@@ -20,7 +20,7 @@ import (
 )
 
 func TestSub(t *testing.T) {
-	// t.Skip()
+	t.Skip()
 	content, _, err := downloader.DownloadToMemoryResty(context.Background(),
 		"",
 		map[string]string{
@@ -30,6 +30,13 @@ func TestSub(t *testing.T) {
 	)
 	common.Must(err)
 	result, err := util.Decode(string(content))
+	common.Must(err)
+	log.Print(result)
+}
+
+func TestDns(t *testing.T) {
+	t.Skip()
+	result, err := util.Decode("")
 	common.Must(err)
 	log.Print(result)
 }

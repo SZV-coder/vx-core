@@ -26,7 +26,7 @@ func buildOutbound(config *configs.TmConfig, builder *Builder, client *client.Cl
 	client.OutboundManager = om
 	common.Must(builder.addComponent(om))
 	err := builder.requireFeature(func(df transport.DialerFactory,
-		policy *policy.Policy, ipr i.IPResolver) error {
+		policy *policy.Policy, _ *dns.Dns) error {
 		var singleHandlers []*configs.HandlerConfig
 		var chainHandlers []*configs.HandlerConfig
 
@@ -60,6 +60,7 @@ func buildOutbound(config *configs.TmConfig, builder *Builder, client *client.Cl
 				DialerFactory:               df,
 				Policy:                      policy,
 				IPResolver:                  client.IPResolver,
+				ECHResolver:                 client.EchResolver,
 				IPResolverForRequestAddress: client.IPResolverForRequestAddress,
 				RejectQuic:                  config.Hysteria2RejectQuic,
 			})
@@ -95,10 +96,10 @@ func buildOutbound(config *configs.TmConfig, builder *Builder, client *client.Cl
 				ChainHandlerConfig:          chainHandlerConfig.GetChain(),
 				Policy:                      policy,
 				IPResolver:                  client.IPResolver,
+				EchResolver:                 client.EchResolver,
 				IPResolverForRequestAddress: client.IPResolverForRequestAddress,
 				DF:                          df,
 				RejectQuic:                  config.Hysteria2RejectQuic,
-				DnsServer:                   dns.NewDnsServerToResolver(&dns.DnsToDnsServer{Dns: client.Dns}),
 			})
 			if err != nil {
 				return err

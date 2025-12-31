@@ -72,7 +72,8 @@ func NewInboundServer(config *configs.ProxyInboundConfig, ha i.Handler, router i
 		}
 	}
 	address := net.ParseAddress(config.Address)
-	transport := create.TransportConfigToMemoryConfig(config.GetTransport(), nil, nil)
+	transport := create.TransportConfigToMemoryConfig(config.GetTransport(), nil,
+		nil, nil)
 
 	for _, port := range ports {
 		// hysteria

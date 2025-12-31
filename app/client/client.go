@@ -31,6 +31,7 @@ type Client struct {
 	Components *common.Components
 	Inbounds   []interface{}
 
+	NetMon          i.DefaultInterfaceInfo
 	Dispatcher      *dispatcher.Dispatcher
 	Geo             *geo.GeoWrapper
 	Subscription    *subscription.SubscriptionManager
@@ -49,6 +50,8 @@ type Client struct {
 	Dns *dns.Dns
 	// used to resolve domains when dial, typically node address and domains of direct connection
 	IPResolver i.IPResolver
+	// used to resolve ech config
+	EchResolver i.ECHResolver
 	// used to resolve domains of proxied connections, typically used for converting domain to real ip for udp connections
 	IPResolverForRequestAddress i.IPResolver
 	IPToDomain                  *dns.IPToDomain
@@ -123,7 +126,7 @@ func (c *Client) CreateHandler(h *configs.HandlerConfig, landHandlerIds []*xsqli
 			DF:                          c.DialerFactory,
 			IPResolverForRequestAddress: c.IPResolverForRequestAddress,
 			RejectQuic:                  c.Hysteria2RejectQuic,
-			DnsServer:                   dns.NewDnsServerToResolver(&dns.DnsToDnsServer{Dns: c.Dns}),
+			EchResolver:                 c.EchResolver,
 		})
 		if err != nil {
 			return nil, err
@@ -136,8 +139,8 @@ func (c *Client) CreateHandler(h *configs.HandlerConfig, landHandlerIds []*xsqli
 		DialerFactory:               df,
 		Policy:                      c.Policy,
 		IPResolver:                  c.IPResolver,
+		EchResolver:                 c.EchResolver,
 		IPResolverForRequestAddress: c.IPResolverForRequestAddress,
 		RejectQuic:                  c.Hysteria2RejectQuic,
-		DnsServer:                   dns.NewDnsServerToResolver(&dns.DnsToDnsServer{Dns: c.Dns}),
 	})
 }

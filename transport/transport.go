@@ -47,7 +47,8 @@ type Config struct {
 	PortSelector   i.PortSelector
 }
 
-func NewDialer(protocolConfig, securityConfig interface{}, dl i.DialerListener, dnsServer i.ECHResolver) (i.Dialer, error) {
+func NewDialer(protocolConfig, securityConfig interface{},
+	dl i.DialerListener, echResolver i.ECHResolver) (i.Dialer, error) {
 	if protocolConfig == nil {
 		protocolConfig = &tcp.TcpConfig{}
 	}
@@ -56,7 +57,7 @@ func NewDialer(protocolConfig, securityConfig interface{}, dl i.DialerListener, 
 	var err error
 	switch sc := securityConfig.(type) {
 	case *tls.TlsConfig:
-		securityEngine, err = tls.NewEngine(tls.EngineConfig{Config: sc, DnsServer: dnsServer})
+		securityEngine, err = tls.NewEngine(tls.EngineConfig{Config: sc, DnsServer: echResolver})
 		if err != nil {
 			return nil, fmt.Errorf("failed to create tls engine: %w", err)
 		}
@@ -89,7 +90,7 @@ func NewDialer(protocolConfig, securityConfig interface{}, dl i.DialerListener, 
 	case *grpc.GrpcConfig:
 		d = grpc.NewGrpcDialer(transportConfig, securityEngine, dl)
 	case *splithttp.SplitHttpConfig:
-		d, err = splithttp.NewXhttpDialer(transportConfig, securityEngine, dl, dnsServer)
+		d, err = splithttp.NewXhttpDialer(transportConfig, securityEngine, dl, echResolver)
 		if err != nil {
 			return nil, err
 		}
@@ -326,8 +327,8 @@ func (d *ResolveDomainDialer) Dial(ctx context.Context, dst net1.Destination) (n
 
 // use a handler to dial and listen
 type HandlerDialerFactory struct {
-	Handler   i.Handler
-	DnsServer i.ECHResolver
+	Handler     i.Handler
+	EchResolver i.ECHResolver
 }
 
 func (d *HandlerDialerFactory) GetDialer(config *Config) (i.Dialer, error) {
@@ -337,7 +338,7 @@ func (d *HandlerDialerFactory) GetDialer(config *Config) (i.Dialer, error) {
 		&util.HandlerToDialerListener{
 			FlowHandlerToDialer:     util.FlowHandlerToDialer{FlowHandler: d.Handler},
 			PacketHandlerToListener: util.PacketHandlerToListener{PacketHandler: d.Handler},
-		}, d.DnsServer)
+		}, d.EchResolver)
 }
 
 func (d *HandlerDialerFactory) GetPacketListener(config *Config) (i.PacketListener, error) {

@@ -27,7 +27,7 @@ func (a *Api) ApiDownload(req *DownloadRequest, dialerFactory transport.DialerFa
 			DialerFactory: dialerFactory,
 			Policy:        policy.New(),
 			IPResolver:    a.getIPResolver(),
-			DnsServer:     a.dnsServer,
+			EchResolver:   a.dnsServer,
 		})
 		if err != nil {
 			log.Println("failed to create handler", err)

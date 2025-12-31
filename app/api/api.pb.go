@@ -3458,6 +3458,102 @@ func (x *GenerateX25519KeyPairResponse) GetPri() string {
 	return ""
 }
 
+type GenerateECHRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Domain        string                 `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateECHRequest) Reset() {
+	*x = GenerateECHRequest{}
+	mi := &file_app_api_api_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateECHRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateECHRequest) ProtoMessage() {}
+
+func (x *GenerateECHRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_app_api_api_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateECHRequest.ProtoReflect.Descriptor instead.
+func (*GenerateECHRequest) Descriptor() ([]byte, []int) {
+	return file_app_api_api_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *GenerateECHRequest) GetDomain() string {
+	if x != nil {
+		return x.Domain
+	}
+	return ""
+}
+
+type GenerateECHResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Config        []byte                 `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	Key           []byte                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateECHResponse) Reset() {
+	*x = GenerateECHResponse{}
+	mi := &file_app_api_api_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateECHResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateECHResponse) ProtoMessage() {}
+
+func (x *GenerateECHResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_app_api_api_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateECHResponse.ProtoReflect.Descriptor instead.
+func (*GenerateECHResponse) Descriptor() ([]byte, []int) {
+	return file_app_api_api_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *GenerateECHResponse) GetConfig() []byte {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+func (x *GenerateECHResponse) GetKey() []byte {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
 type StartMacSystemProxyRequest struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	HttpProxyAddress  string                 `protobuf:"bytes,1,opt,name=http_proxy_address,json=httpProxyAddress,proto3" json:"http_proxy_address,omitempty"`
@@ -3472,7 +3568,7 @@ type StartMacSystemProxyRequest struct {
 
 func (x *StartMacSystemProxyRequest) Reset() {
 	*x = StartMacSystemProxyRequest{}
-	mi := &file_app_api_api_proto_msgTypes[64]
+	mi := &file_app_api_api_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3484,7 +3580,7 @@ func (x *StartMacSystemProxyRequest) String() string {
 func (*StartMacSystemProxyRequest) ProtoMessage() {}
 
 func (x *StartMacSystemProxyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_api_api_proto_msgTypes[64]
+	mi := &file_app_api_api_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3497,7 +3593,7 @@ func (x *StartMacSystemProxyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartMacSystemProxyRequest.ProtoReflect.Descriptor instead.
 func (*StartMacSystemProxyRequest) Descriptor() ([]byte, []int) {
-	return file_app_api_api_proto_rawDescGZIP(), []int{64}
+	return file_app_api_api_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *StartMacSystemProxyRequest) GetHttpProxyAddress() string {
@@ -3550,7 +3646,7 @@ type StopMacSystemProxyRequest struct {
 
 func (x *StopMacSystemProxyRequest) Reset() {
 	*x = StopMacSystemProxyRequest{}
-	mi := &file_app_api_api_proto_msgTypes[65]
+	mi := &file_app_api_api_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3562,7 +3658,7 @@ func (x *StopMacSystemProxyRequest) String() string {
 func (*StopMacSystemProxyRequest) ProtoMessage() {}
 
 func (x *StopMacSystemProxyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_api_api_proto_msgTypes[65]
+	mi := &file_app_api_api_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3575,7 +3671,7 @@ func (x *StopMacSystemProxyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopMacSystemProxyRequest.ProtoReflect.Descriptor instead.
 func (*StopMacSystemProxyRequest) Descriptor() ([]byte, []int) {
-	return file_app_api_api_proto_rawDescGZIP(), []int{65}
+	return file_app_api_api_proto_rawDescGZIP(), []int{67}
 }
 
 type CloseDbRequest struct {
@@ -3586,7 +3682,7 @@ type CloseDbRequest struct {
 
 func (x *CloseDbRequest) Reset() {
 	*x = CloseDbRequest{}
-	mi := &file_app_api_api_proto_msgTypes[66]
+	mi := &file_app_api_api_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3598,7 +3694,7 @@ func (x *CloseDbRequest) String() string {
 func (*CloseDbRequest) ProtoMessage() {}
 
 func (x *CloseDbRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_api_api_proto_msgTypes[66]
+	mi := &file_app_api_api_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3611,7 +3707,7 @@ func (x *CloseDbRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CloseDbRequest.ProtoReflect.Descriptor instead.
 func (*CloseDbRequest) Descriptor() ([]byte, []int) {
-	return file_app_api_api_proto_rawDescGZIP(), []int{66}
+	return file_app_api_api_proto_rawDescGZIP(), []int{68}
 }
 
 type OpenDbRequest struct {
@@ -3623,7 +3719,7 @@ type OpenDbRequest struct {
 
 func (x *OpenDbRequest) Reset() {
 	*x = OpenDbRequest{}
-	mi := &file_app_api_api_proto_msgTypes[67]
+	mi := &file_app_api_api_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3635,7 +3731,7 @@ func (x *OpenDbRequest) String() string {
 func (*OpenDbRequest) ProtoMessage() {}
 
 func (x *OpenDbRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_api_api_proto_msgTypes[67]
+	mi := &file_app_api_api_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3648,7 +3744,7 @@ func (x *OpenDbRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OpenDbRequest.ProtoReflect.Descriptor instead.
 func (*OpenDbRequest) Descriptor() ([]byte, []int) {
-	return file_app_api_api_proto_rawDescGZIP(), []int{67}
+	return file_app_api_api_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *OpenDbRequest) GetPath() string {
@@ -3670,7 +3766,7 @@ type InboundConfigToOutboundConfigRequest struct {
 
 func (x *InboundConfigToOutboundConfigRequest) Reset() {
 	*x = InboundConfigToOutboundConfigRequest{}
-	mi := &file_app_api_api_proto_msgTypes[68]
+	mi := &file_app_api_api_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3682,7 +3778,7 @@ func (x *InboundConfigToOutboundConfigRequest) String() string {
 func (*InboundConfigToOutboundConfigRequest) ProtoMessage() {}
 
 func (x *InboundConfigToOutboundConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_api_api_proto_msgTypes[68]
+	mi := &file_app_api_api_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3695,7 +3791,7 @@ func (x *InboundConfigToOutboundConfigRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use InboundConfigToOutboundConfigRequest.ProtoReflect.Descriptor instead.
 func (*InboundConfigToOutboundConfigRequest) Descriptor() ([]byte, []int) {
-	return file_app_api_api_proto_rawDescGZIP(), []int{68}
+	return file_app_api_api_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *InboundConfigToOutboundConfigRequest) GetInbound() *configs.ProxyInboundConfig {
@@ -3735,7 +3831,7 @@ type InboundConfigToOutboundConfigResponse struct {
 
 func (x *InboundConfigToOutboundConfigResponse) Reset() {
 	*x = InboundConfigToOutboundConfigResponse{}
-	mi := &file_app_api_api_proto_msgTypes[69]
+	mi := &file_app_api_api_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3747,7 +3843,7 @@ func (x *InboundConfigToOutboundConfigResponse) String() string {
 func (*InboundConfigToOutboundConfigResponse) ProtoMessage() {}
 
 func (x *InboundConfigToOutboundConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_api_api_proto_msgTypes[69]
+	mi := &file_app_api_api_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3760,7 +3856,7 @@ func (x *InboundConfigToOutboundConfigResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use InboundConfigToOutboundConfigResponse.ProtoReflect.Descriptor instead.
 func (*InboundConfigToOutboundConfigResponse) Descriptor() ([]byte, []int) {
-	return file_app_api_api_proto_rawDescGZIP(), []int{69}
+	return file_app_api_api_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *InboundConfigToOutboundConfigResponse) GetOutboundConfigs() []*configs.OutboundHandlerConfig {
@@ -3779,7 +3875,7 @@ type ToUrlRequest struct {
 
 func (x *ToUrlRequest) Reset() {
 	*x = ToUrlRequest{}
-	mi := &file_app_api_api_proto_msgTypes[70]
+	mi := &file_app_api_api_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3791,7 +3887,7 @@ func (x *ToUrlRequest) String() string {
 func (*ToUrlRequest) ProtoMessage() {}
 
 func (x *ToUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_api_api_proto_msgTypes[70]
+	mi := &file_app_api_api_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3804,7 +3900,7 @@ func (x *ToUrlRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToUrlRequest.ProtoReflect.Descriptor instead.
 func (*ToUrlRequest) Descriptor() ([]byte, []int) {
-	return file_app_api_api_proto_rawDescGZIP(), []int{70}
+	return file_app_api_api_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *ToUrlRequest) GetOutboundConfogs() []*configs.OutboundHandlerConfig {
@@ -3824,7 +3920,7 @@ type ToUrlResponse struct {
 
 func (x *ToUrlResponse) Reset() {
 	*x = ToUrlResponse{}
-	mi := &file_app_api_api_proto_msgTypes[71]
+	mi := &file_app_api_api_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3836,7 +3932,7 @@ func (x *ToUrlResponse) String() string {
 func (*ToUrlResponse) ProtoMessage() {}
 
 func (x *ToUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_api_api_proto_msgTypes[71]
+	mi := &file_app_api_api_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3849,7 +3945,7 @@ func (x *ToUrlResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToUrlResponse.ProtoReflect.Descriptor instead.
 func (*ToUrlResponse) Descriptor() ([]byte, []int) {
-	return file_app_api_api_proto_rawDescGZIP(), []int{71}
+	return file_app_api_api_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *ToUrlResponse) GetUrls() []string {
@@ -4102,7 +4198,12 @@ const file_app_api_api_proto_rawDesc = "" +
 	"\x1cGenerateX25519KeyPairRequest\"C\n" +
 	"\x1dGenerateX25519KeyPairResponse\x12\x10\n" +
 	"\x03pub\x18\x01 \x01(\tR\x03pub\x12\x10\n" +
-	"\x03pri\x18\x02 \x01(\tR\x03pri\"\xa6\x02\n" +
+	"\x03pri\x18\x02 \x01(\tR\x03pri\",\n" +
+	"\x12GenerateECHRequest\x12\x16\n" +
+	"\x06domain\x18\x01 \x01(\tR\x06domain\"?\n" +
+	"\x13GenerateECHResponse\x12\x16\n" +
+	"\x06config\x18\x01 \x01(\fR\x06config\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\fR\x03key\"\xa6\x02\n" +
 	"\x1aStartMacSystemProxyRequest\x12,\n" +
 	"\x12http_proxy_address\x18\x01 \x01(\tR\x10httpProxyAddress\x12&\n" +
 	"\x0fhttp_proxy_port\x18\x02 \x01(\rR\rhttpProxyPort\x12.\n" +
@@ -4126,7 +4227,7 @@ const file_app_api_api_proto_rawDesc = "" +
 	"\x10outbound_confogs\x18\x01 \x03(\v2\x18.x.OutboundHandlerConfigR\x0foutboundConfogs\"F\n" +
 	"\rToUrlResponse\x12\x12\n" +
 	"\x04urls\x18\x01 \x03(\tR\x04urls\x12!\n" +
-	"\ffailed_nodes\x18\x02 \x03(\tR\vfailedNodes2\x81\x13\n" +
+	"\ffailed_nodes\x18\x02 \x03(\tR\vfailedNodes2\xc7\x13\n" +
 	"\x03Api\x12>\n" +
 	"\x0eUpdateTmStatus\x12\x1c.x.api.UpdateTmStatusRequest\x1a\x0e.x.api.Receipt\x12;\n" +
 	"\bDownload\x12\x16.x.api.DownloadRequest\x1a\x17.x.api.DownloadResponse\x12J\n" +
@@ -4145,7 +4246,8 @@ const file_app_api_api_proto_rawDesc = "" +
 	"\x0fProcessGeoFiles\x12\x1d.x.api.ProcessGeoFilesRequest\x1a\x1e.x.api.ProcessGeoFilesResponse\x125\n" +
 	"\x06Decode\x12\x14.x.api.DecodeRequest\x1a\x15.x.api.DecodeResponse\x125\n" +
 	"\x06Deploy\x12\x14.x.api.DeployRequest\x1a\x15.x.api.DeployResponse\x12G\n" +
-	"\fGenerateCert\x12\x1a.x.api.GenerateCertRequest\x1a\x1b.x.api.GenerateCertResponse\x12J\n" +
+	"\fGenerateCert\x12\x1a.x.api.GenerateCertRequest\x1a\x1b.x.api.GenerateCertResponse\x12D\n" +
+	"\vGenerateECH\x12\x19.x.api.GenerateECHRequest\x1a\x1a.x.api.GenerateECHResponse\x12J\n" +
 	"\rGetCertDomain\x12\x1b.x.api.GetCertDomainRequest\x1a\x1c.x.api.GetCertDomainResponse\x12A\n" +
 	"\n" +
 	"AddInbound\x12\x18.x.api.AddInboundRequest\x1a\x19.x.api.AddInboundResponse\x12>\n" +
@@ -4176,7 +4278,7 @@ func file_app_api_api_proto_rawDescGZIP() []byte {
 }
 
 var file_app_api_api_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_app_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 75)
+var file_app_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 77)
 var file_app_api_api_proto_goTypes = []any{
 	(XStatusChangeNotifyRequest_Status)(0),        // 0: x.api.XStatusChangeNotifyRequest.Status
 	(ServerActionRequest_Action)(0),               // 1: x.api.ServerActionRequest.Action
@@ -4244,64 +4346,66 @@ var file_app_api_api_proto_goTypes = []any{
 	(*RealiScannerResult)(nil),                    // 63: x.api.RealiScannerResult
 	(*GenerateX25519KeyPairRequest)(nil),          // 64: x.api.GenerateX25519KeyPairRequest
 	(*GenerateX25519KeyPairResponse)(nil),         // 65: x.api.GenerateX25519KeyPairResponse
-	(*StartMacSystemProxyRequest)(nil),            // 66: x.api.StartMacSystemProxyRequest
-	(*StopMacSystemProxyRequest)(nil),             // 67: x.api.StopMacSystemProxyRequest
-	(*CloseDbRequest)(nil),                        // 68: x.api.CloseDbRequest
-	(*OpenDbRequest)(nil),                         // 69: x.api.OpenDbRequest
-	(*InboundConfigToOutboundConfigRequest)(nil),  // 70: x.api.InboundConfigToOutboundConfigRequest
-	(*InboundConfigToOutboundConfigResponse)(nil), // 71: x.api.InboundConfigToOutboundConfigResponse
-	(*ToUrlRequest)(nil),                          // 72: x.api.ToUrlRequest
-	(*ToUrlResponse)(nil),                         // 73: x.api.ToUrlResponse
-	nil,                                           // 74: x.api.UpdateSubscriptionResponse.ErrorReasonsEntry
-	nil,                                           // 75: x.api.DownloadResponse.UsageEntry
-	nil,                                           // 76: x.api.DeployRequest.FilesEntry
-	(*configs.HandlerConfig)(nil),                 // 77: x.HandlerConfig
-	(*configs.OutboundHandlerConfig)(nil),         // 78: x.OutboundHandlerConfig
-	(*server.ServerConfig)(nil),                   // 79: x.ServerConfig
-	(*configs.ProxyInboundConfig)(nil),            // 80: x.ProxyInboundConfig
-	(*geo.Domain)(nil),                            // 81: x.common.geo.Domain
-	(*geo.CIDR)(nil),                              // 82: x.common.geo.CIDR
-	(*configs.AppId)(nil),                         // 83: x.AppId
-	(*configs.GeositeConfig)(nil),                 // 84: x.GeositeConfig
-	(*configs.GeoIPConfig)(nil),                   // 85: x.GeoIPConfig
-	(*configs.MultiProxyInboundConfig)(nil),       // 86: x.MultiProxyInboundConfig
+	(*GenerateECHRequest)(nil),                    // 66: x.api.GenerateECHRequest
+	(*GenerateECHResponse)(nil),                   // 67: x.api.GenerateECHResponse
+	(*StartMacSystemProxyRequest)(nil),            // 68: x.api.StartMacSystemProxyRequest
+	(*StopMacSystemProxyRequest)(nil),             // 69: x.api.StopMacSystemProxyRequest
+	(*CloseDbRequest)(nil),                        // 70: x.api.CloseDbRequest
+	(*OpenDbRequest)(nil),                         // 71: x.api.OpenDbRequest
+	(*InboundConfigToOutboundConfigRequest)(nil),  // 72: x.api.InboundConfigToOutboundConfigRequest
+	(*InboundConfigToOutboundConfigResponse)(nil), // 73: x.api.InboundConfigToOutboundConfigResponse
+	(*ToUrlRequest)(nil),                          // 74: x.api.ToUrlRequest
+	(*ToUrlResponse)(nil),                         // 75: x.api.ToUrlResponse
+	nil,                                           // 76: x.api.UpdateSubscriptionResponse.ErrorReasonsEntry
+	nil,                                           // 77: x.api.DownloadResponse.UsageEntry
+	nil,                                           // 78: x.api.DeployRequest.FilesEntry
+	(*configs.HandlerConfig)(nil),                 // 79: x.HandlerConfig
+	(*configs.OutboundHandlerConfig)(nil),         // 80: x.OutboundHandlerConfig
+	(*server.ServerConfig)(nil),                   // 81: x.ServerConfig
+	(*configs.ProxyInboundConfig)(nil),            // 82: x.ProxyInboundConfig
+	(*geo.Domain)(nil),                            // 83: x.common.geo.Domain
+	(*geo.CIDR)(nil),                              // 84: x.common.geo.CIDR
+	(*configs.AppId)(nil),                         // 85: x.AppId
+	(*configs.GeositeConfig)(nil),                 // 86: x.GeositeConfig
+	(*configs.GeoIPConfig)(nil),                   // 87: x.GeoIPConfig
+	(*configs.MultiProxyInboundConfig)(nil),       // 88: x.MultiProxyInboundConfig
 }
 var file_app_api_api_proto_depIdxs = []int32{
 	0,  // 0: x.api.XStatusChangeNotifyRequest.status:type_name -> x.api.XStatusChangeNotifyRequest.Status
-	77, // 1: x.api.UpdateSubscriptionRequest.handlers:type_name -> x.HandlerConfig
-	74, // 2: x.api.UpdateSubscriptionResponse.error_reasons:type_name -> x.api.UpdateSubscriptionResponse.ErrorReasonsEntry
-	77, // 3: x.api.DownloadRequest.handlers:type_name -> x.HandlerConfig
-	75, // 4: x.api.DownloadResponse.usage:type_name -> x.api.DownloadResponse.UsageEntry
-	78, // 5: x.api.HandlerIpRequest.handler:type_name -> x.OutboundHandlerConfig
-	77, // 6: x.api.HandlerUsableRequest.handler:type_name -> x.HandlerConfig
-	77, // 7: x.api.SpeedTestRequest.handlers:type_name -> x.HandlerConfig
+	79, // 1: x.api.UpdateSubscriptionRequest.handlers:type_name -> x.HandlerConfig
+	76, // 2: x.api.UpdateSubscriptionResponse.error_reasons:type_name -> x.api.UpdateSubscriptionResponse.ErrorReasonsEntry
+	79, // 3: x.api.DownloadRequest.handlers:type_name -> x.HandlerConfig
+	77, // 4: x.api.DownloadResponse.usage:type_name -> x.api.DownloadResponse.UsageEntry
+	80, // 5: x.api.HandlerIpRequest.handler:type_name -> x.OutboundHandlerConfig
+	79, // 6: x.api.HandlerUsableRequest.handler:type_name -> x.HandlerConfig
+	79, // 7: x.api.SpeedTestRequest.handlers:type_name -> x.HandlerConfig
 	23, // 8: x.api.MonitorServerRequest.ssh_config:type_name -> x.api.ServerSshConfig
 	23, // 9: x.api.DeployRequest.ssh_config:type_name -> x.api.ServerSshConfig
-	76, // 10: x.api.DeployRequest.files:type_name -> x.api.DeployRequest.FilesEntry
-	79, // 11: x.api.DeployRequest.vx_config:type_name -> x.ServerConfig
+	78, // 10: x.api.DeployRequest.files:type_name -> x.api.DeployRequest.FilesEntry
+	81, // 11: x.api.DeployRequest.vx_config:type_name -> x.ServerConfig
 	1,  // 12: x.api.ServerActionRequest.action:type_name -> x.api.ServerActionRequest.Action
 	23, // 13: x.api.ServerActionRequest.ssh_config:type_name -> x.api.ServerSshConfig
 	23, // 14: x.api.VproxyStatusRequest.ssh_config:type_name -> x.api.ServerSshConfig
 	23, // 15: x.api.VXRequest.ssh_config:type_name -> x.api.ServerSshConfig
 	23, // 16: x.api.ServerConfigRequest.ssh_config:type_name -> x.api.ServerSshConfig
-	79, // 17: x.api.ServerConfigResponse.config:type_name -> x.ServerConfig
+	81, // 17: x.api.ServerConfigResponse.config:type_name -> x.ServerConfig
 	23, // 18: x.api.UpdateServerConfigRequest.ssh_config:type_name -> x.api.ServerSshConfig
-	79, // 19: x.api.UpdateServerConfigRequest.config:type_name -> x.ServerConfig
-	78, // 20: x.api.DecodeResponse.handlers:type_name -> x.OutboundHandlerConfig
+	81, // 19: x.api.UpdateServerConfigRequest.config:type_name -> x.ServerConfig
+	80, // 20: x.api.DecodeResponse.handlers:type_name -> x.OutboundHandlerConfig
 	23, // 21: x.api.GetServerPublicKeyRequest.ssh_config:type_name -> x.api.ServerSshConfig
-	80, // 22: x.api.AddInboundRequest.inbound:type_name -> x.ProxyInboundConfig
-	81, // 23: x.api.ParseClashRuleFileResponse.domains:type_name -> x.common.geo.Domain
-	82, // 24: x.api.ParseClashRuleFileResponse.cidrs:type_name -> x.common.geo.CIDR
-	83, // 25: x.api.ParseClashRuleFileResponse.app_ids:type_name -> x.AppId
-	84, // 26: x.api.ParseGeositeConfigRequest.config:type_name -> x.GeositeConfig
-	81, // 27: x.api.ParseGeositeConfigResponse.domains:type_name -> x.common.geo.Domain
-	85, // 28: x.api.ParseGeoIPConfigRequest.config:type_name -> x.GeoIPConfig
-	82, // 29: x.api.ParseGeoIPConfigResponse.cidrs:type_name -> x.common.geo.CIDR
+	82, // 22: x.api.AddInboundRequest.inbound:type_name -> x.ProxyInboundConfig
+	83, // 23: x.api.ParseClashRuleFileResponse.domains:type_name -> x.common.geo.Domain
+	84, // 24: x.api.ParseClashRuleFileResponse.cidrs:type_name -> x.common.geo.CIDR
+	85, // 25: x.api.ParseClashRuleFileResponse.app_ids:type_name -> x.AppId
+	86, // 26: x.api.ParseGeositeConfigRequest.config:type_name -> x.GeositeConfig
+	83, // 27: x.api.ParseGeositeConfigResponse.domains:type_name -> x.common.geo.Domain
+	87, // 28: x.api.ParseGeoIPConfigRequest.config:type_name -> x.GeoIPConfig
+	84, // 29: x.api.ParseGeoIPConfigResponse.cidrs:type_name -> x.common.geo.CIDR
 	63, // 30: x.api.RunRealiScannerResponse.results:type_name -> x.api.RealiScannerResult
-	80, // 31: x.api.InboundConfigToOutboundConfigRequest.inbound:type_name -> x.ProxyInboundConfig
-	86, // 32: x.api.InboundConfigToOutboundConfigRequest.multi_inbound:type_name -> x.MultiProxyInboundConfig
-	78, // 33: x.api.InboundConfigToOutboundConfigResponse.outbound_configs:type_name -> x.OutboundHandlerConfig
-	78, // 34: x.api.ToUrlRequest.outbound_confogs:type_name -> x.OutboundHandlerConfig
+	82, // 31: x.api.InboundConfigToOutboundConfigRequest.inbound:type_name -> x.ProxyInboundConfig
+	88, // 32: x.api.InboundConfigToOutboundConfigRequest.multi_inbound:type_name -> x.MultiProxyInboundConfig
+	80, // 33: x.api.InboundConfigToOutboundConfigResponse.outbound_configs:type_name -> x.OutboundHandlerConfig
+	80, // 34: x.api.ToUrlRequest.outbound_confogs:type_name -> x.OutboundHandlerConfig
 	53, // 35: x.api.Api.UpdateTmStatus:input_type -> x.api.UpdateTmStatusRequest
 	11, // 36: x.api.Api.Download:input_type -> x.api.DownloadRequest
 	17, // 37: x.api.Api.HandlerUsable:input_type -> x.api.HandlerUsableRequest
@@ -4320,56 +4424,58 @@ var file_app_api_api_proto_depIdxs = []int32{
 	39, // 50: x.api.Api.Decode:input_type -> x.api.DecodeRequest
 	26, // 51: x.api.Api.Deploy:input_type -> x.api.DeployRequest
 	43, // 52: x.api.Api.GenerateCert:input_type -> x.api.GenerateCertRequest
-	45, // 53: x.api.Api.GetCertDomain:input_type -> x.api.GetCertDomainRequest
-	47, // 54: x.api.Api.AddInbound:input_type -> x.api.AddInboundRequest
-	49, // 55: x.api.Api.UploadLog:input_type -> x.api.UploadLogRequest
-	51, // 56: x.api.Api.DefaultNICHasGlobalV6:input_type -> x.api.DefaultNICHasGlobalV6Request
-	55, // 57: x.api.Api.ParseClashRuleFile:input_type -> x.api.ParseClashRuleFileRequest
-	57, // 58: x.api.Api.ParseGeositeConfig:input_type -> x.api.ParseGeositeConfigRequest
-	59, // 59: x.api.Api.ParseGeoIPConfig:input_type -> x.api.ParseGeoIPConfigRequest
-	61, // 60: x.api.Api.RunRealiScanner:input_type -> x.api.RunRealiScannerRequest
-	64, // 61: x.api.Api.GenerateX25519KeyPair:input_type -> x.api.GenerateX25519KeyPairRequest
-	66, // 62: x.api.Api.StartMacSystemProxy:input_type -> x.api.StartMacSystemProxyRequest
-	67, // 63: x.api.Api.StopMacSystemProxy:input_type -> x.api.StopMacSystemProxyRequest
-	68, // 64: x.api.Api.CloseDb:input_type -> x.api.CloseDbRequest
-	69, // 65: x.api.Api.OpenDb:input_type -> x.api.OpenDbRequest
-	70, // 66: x.api.Api.InboundConfigToOutboundConfig:input_type -> x.api.InboundConfigToOutboundConfigRequest
-	72, // 67: x.api.Api.ToUrl:input_type -> x.api.ToUrlRequest
-	54, // 68: x.api.Api.UpdateTmStatus:output_type -> x.api.Receipt
-	12, // 69: x.api.Api.Download:output_type -> x.api.DownloadResponse
-	18, // 70: x.api.Api.HandlerUsable:output_type -> x.api.HandlerUsableResponse
-	20, // 71: x.api.Api.SpeedTest:output_type -> x.api.SpeedTestResponse
-	15, // 72: x.api.Api.RttTest:output_type -> x.api.RttTestResponse
-	22, // 73: x.api.Api.GeoIP:output_type -> x.api.GeoIPResponse
-	42, // 74: x.api.Api.GetServerPublicKey:output_type -> x.api.GetServerPublicKeyResponse
-	25, // 75: x.api.Api.MonitorServer:output_type -> x.api.MonitorServerResponse
-	29, // 76: x.api.Api.ServerAction:output_type -> x.api.ServerActionResponse
-	31, // 77: x.api.Api.VproxyStatus:output_type -> x.api.VproxyStatusResponse
-	54, // 78: x.api.Api.VX:output_type -> x.api.Receipt
-	34, // 79: x.api.Api.ServerConfig:output_type -> x.api.ServerConfigResponse
-	36, // 80: x.api.Api.UpdateServerConfig:output_type -> x.api.UpdateServerConfigResponse
-	8,  // 81: x.api.Api.UpdateSubscription:output_type -> x.api.UpdateSubscriptionResponse
-	38, // 82: x.api.Api.ProcessGeoFiles:output_type -> x.api.ProcessGeoFilesResponse
-	40, // 83: x.api.Api.Decode:output_type -> x.api.DecodeResponse
-	27, // 84: x.api.Api.Deploy:output_type -> x.api.DeployResponse
-	44, // 85: x.api.Api.GenerateCert:output_type -> x.api.GenerateCertResponse
-	46, // 86: x.api.Api.GetCertDomain:output_type -> x.api.GetCertDomainResponse
-	48, // 87: x.api.Api.AddInbound:output_type -> x.api.AddInboundResponse
-	50, // 88: x.api.Api.UploadLog:output_type -> x.api.UploadLogResponse
-	52, // 89: x.api.Api.DefaultNICHasGlobalV6:output_type -> x.api.DefaultNICHasGlobalV6Response
-	56, // 90: x.api.Api.ParseClashRuleFile:output_type -> x.api.ParseClashRuleFileResponse
-	58, // 91: x.api.Api.ParseGeositeConfig:output_type -> x.api.ParseGeositeConfigResponse
-	60, // 92: x.api.Api.ParseGeoIPConfig:output_type -> x.api.ParseGeoIPConfigResponse
-	62, // 93: x.api.Api.RunRealiScanner:output_type -> x.api.RunRealiScannerResponse
-	65, // 94: x.api.Api.GenerateX25519KeyPair:output_type -> x.api.GenerateX25519KeyPairResponse
-	54, // 95: x.api.Api.StartMacSystemProxy:output_type -> x.api.Receipt
-	54, // 96: x.api.Api.StopMacSystemProxy:output_type -> x.api.Receipt
-	54, // 97: x.api.Api.CloseDb:output_type -> x.api.Receipt
-	54, // 98: x.api.Api.OpenDb:output_type -> x.api.Receipt
-	71, // 99: x.api.Api.InboundConfigToOutboundConfig:output_type -> x.api.InboundConfigToOutboundConfigResponse
-	73, // 100: x.api.Api.ToUrl:output_type -> x.api.ToUrlResponse
-	68, // [68:101] is the sub-list for method output_type
-	35, // [35:68] is the sub-list for method input_type
+	66, // 53: x.api.Api.GenerateECH:input_type -> x.api.GenerateECHRequest
+	45, // 54: x.api.Api.GetCertDomain:input_type -> x.api.GetCertDomainRequest
+	47, // 55: x.api.Api.AddInbound:input_type -> x.api.AddInboundRequest
+	49, // 56: x.api.Api.UploadLog:input_type -> x.api.UploadLogRequest
+	51, // 57: x.api.Api.DefaultNICHasGlobalV6:input_type -> x.api.DefaultNICHasGlobalV6Request
+	55, // 58: x.api.Api.ParseClashRuleFile:input_type -> x.api.ParseClashRuleFileRequest
+	57, // 59: x.api.Api.ParseGeositeConfig:input_type -> x.api.ParseGeositeConfigRequest
+	59, // 60: x.api.Api.ParseGeoIPConfig:input_type -> x.api.ParseGeoIPConfigRequest
+	61, // 61: x.api.Api.RunRealiScanner:input_type -> x.api.RunRealiScannerRequest
+	64, // 62: x.api.Api.GenerateX25519KeyPair:input_type -> x.api.GenerateX25519KeyPairRequest
+	68, // 63: x.api.Api.StartMacSystemProxy:input_type -> x.api.StartMacSystemProxyRequest
+	69, // 64: x.api.Api.StopMacSystemProxy:input_type -> x.api.StopMacSystemProxyRequest
+	70, // 65: x.api.Api.CloseDb:input_type -> x.api.CloseDbRequest
+	71, // 66: x.api.Api.OpenDb:input_type -> x.api.OpenDbRequest
+	72, // 67: x.api.Api.InboundConfigToOutboundConfig:input_type -> x.api.InboundConfigToOutboundConfigRequest
+	74, // 68: x.api.Api.ToUrl:input_type -> x.api.ToUrlRequest
+	54, // 69: x.api.Api.UpdateTmStatus:output_type -> x.api.Receipt
+	12, // 70: x.api.Api.Download:output_type -> x.api.DownloadResponse
+	18, // 71: x.api.Api.HandlerUsable:output_type -> x.api.HandlerUsableResponse
+	20, // 72: x.api.Api.SpeedTest:output_type -> x.api.SpeedTestResponse
+	15, // 73: x.api.Api.RttTest:output_type -> x.api.RttTestResponse
+	22, // 74: x.api.Api.GeoIP:output_type -> x.api.GeoIPResponse
+	42, // 75: x.api.Api.GetServerPublicKey:output_type -> x.api.GetServerPublicKeyResponse
+	25, // 76: x.api.Api.MonitorServer:output_type -> x.api.MonitorServerResponse
+	29, // 77: x.api.Api.ServerAction:output_type -> x.api.ServerActionResponse
+	31, // 78: x.api.Api.VproxyStatus:output_type -> x.api.VproxyStatusResponse
+	54, // 79: x.api.Api.VX:output_type -> x.api.Receipt
+	34, // 80: x.api.Api.ServerConfig:output_type -> x.api.ServerConfigResponse
+	36, // 81: x.api.Api.UpdateServerConfig:output_type -> x.api.UpdateServerConfigResponse
+	8,  // 82: x.api.Api.UpdateSubscription:output_type -> x.api.UpdateSubscriptionResponse
+	38, // 83: x.api.Api.ProcessGeoFiles:output_type -> x.api.ProcessGeoFilesResponse
+	40, // 84: x.api.Api.Decode:output_type -> x.api.DecodeResponse
+	27, // 85: x.api.Api.Deploy:output_type -> x.api.DeployResponse
+	44, // 86: x.api.Api.GenerateCert:output_type -> x.api.GenerateCertResponse
+	67, // 87: x.api.Api.GenerateECH:output_type -> x.api.GenerateECHResponse
+	46, // 88: x.api.Api.GetCertDomain:output_type -> x.api.GetCertDomainResponse
+	48, // 89: x.api.Api.AddInbound:output_type -> x.api.AddInboundResponse
+	50, // 90: x.api.Api.UploadLog:output_type -> x.api.UploadLogResponse
+	52, // 91: x.api.Api.DefaultNICHasGlobalV6:output_type -> x.api.DefaultNICHasGlobalV6Response
+	56, // 92: x.api.Api.ParseClashRuleFile:output_type -> x.api.ParseClashRuleFileResponse
+	58, // 93: x.api.Api.ParseGeositeConfig:output_type -> x.api.ParseGeositeConfigResponse
+	60, // 94: x.api.Api.ParseGeoIPConfig:output_type -> x.api.ParseGeoIPConfigResponse
+	62, // 95: x.api.Api.RunRealiScanner:output_type -> x.api.RunRealiScannerResponse
+	65, // 96: x.api.Api.GenerateX25519KeyPair:output_type -> x.api.GenerateX25519KeyPairResponse
+	54, // 97: x.api.Api.StartMacSystemProxy:output_type -> x.api.Receipt
+	54, // 98: x.api.Api.StopMacSystemProxy:output_type -> x.api.Receipt
+	54, // 99: x.api.Api.CloseDb:output_type -> x.api.Receipt
+	54, // 100: x.api.Api.OpenDb:output_type -> x.api.Receipt
+	73, // 101: x.api.Api.InboundConfigToOutboundConfig:output_type -> x.api.InboundConfigToOutboundConfigResponse
+	75, // 102: x.api.Api.ToUrl:output_type -> x.api.ToUrlResponse
+	69, // [69:103] is the sub-list for method output_type
+	35, // [35:69] is the sub-list for method input_type
 	35, // [35:35] is the sub-list for extension type_name
 	35, // [35:35] is the sub-list for extension extendee
 	0,  // [0:35] is the sub-list for field type_name
@@ -4386,7 +4492,7 @@ func file_app_api_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_api_api_proto_rawDesc), len(file_app_api_api_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   75,
+			NumMessages:   77,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -49,9 +49,86 @@ func NewDNS(config *configs.TmConfig, fc *Builder, client *client.Client) error 
 
 	// static
 	staticDnsServer := idns.NewStaticDnsServer(dnsConfig.GetRecords())
+
+	// internal dns
+	err := fc.requireFeature(func(h *dispatcher.Dispatcher) error {
+		var dailer i.Dialer
+		if config.GetTun().GetShouldBindDevice() {
+			if runtime.GOOS == "android" {
+				fdFunc := fc.getFeature(reflect.TypeOf((*transport.FdFunc)(nil)).Elem())
+				dailer = &dlhelper.SocketSetting{
+					FdFunc: fdFunc.(transport.FdFunc),
+				}
+			} else {
+				dailer = transport.NewBindToDefaultNICDialer(client.NetMon, &dlhelper.SocketSetting{})
+			}
+		} else {
+			dailer = transport.DefaultDialer
+		}
+		// dns server for direct
+		ctx := inbound.ContextWithInboundTag(
+			log.With().Str("tag", "internal-dns-direct").Logger().WithContext(
+				context.Background()), "internal-dns-direct")
+		dis := pd.NewPacketDispatcher(ctx, h)
+		internalDnsDirect := idns.NewDnsServerConcurrent(idns.DnsServerConcurrentOption{
+			Name:       "internal-dns-direct",
+			RrCache:    idns.NewRrCache(idns.RrCacheSetting{}),
+			Handler:    h,
+			IPToDomain: ipToDomain,
+			Dispatcher: dis,
+		})
+		dests := []mynet.AddressPort{
+			{
+				Address: mynet.CfDns4,
+				Port:    53,
+			},
+			{
+				Address: mynet.AliyunDns4,
+				Port:    53,
+			},
+		}
+		if client.NetMon != nil {
+			setDefaultNICNameservers(internalDnsDirect, client.NetMon, dests, dailer)
+		} else {
+			internalDnsDirect.SetDests(dests)
+		}
+		ctx = inbound.ContextWithInboundTag(
+			log.With().Str("tag", "internal-dns-proxy").Logger().WithContext(
+				context.Background()), "internal-dns-proxy")
+		dis = pd.NewPacketDispatcher(ctx, h,
+			// pd.WithRequestTimeout(time.Second*4),
+			pd.WithResponseTimeout(time.Second*4),
+			pd.WithLinkLifetime(time.Minute*5),
+		)
+		internalDndProxy := idns.NewDnsServerConcurrent(idns.DnsServerConcurrentOption{
+			Name:    "internal-dns-proxy",
+			RrCache: idns.NewRrCache(idns.RrCacheSetting{Duration: 3600}),
+			NameserverAddrs: []mynet.AddressPort{
+				{
+					Address: mynet.CfDns4,
+					Port:    53,
+				},
+			},
+			Handler:    h,
+			Dispatcher: dis,
+		})
+		internalDns := idns.NewInternalDns(staticDnsServer,
+			internalDnsDirect, internalDndProxy)
+		client.IPResolver = internalDns
+		client.EchResolver = internalDns
+		if err := fc.addComponent(internalDns); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	// dns servers
 	if len(dnsConfig.DnsServers) > 0 {
 		err := fc.requireFeature(func(h *dispatcher.Dispatcher, gh i.GeoHelper,
-			om *outbound.Manager, dii i.DefaultInterfaceInfo) error {
+			om *outbound.Manager, dii i.DefaultInterfaceInfo, internalDns *idns.InternalDns) error {
 			var dailer i.Dialer
 			if config.GetTun().GetShouldBindDevice() {
 				if runtime.GOOS == "android" {
@@ -65,55 +142,12 @@ func NewDNS(config *configs.TmConfig, fc *Builder, client *client.Client) error 
 			} else {
 				dailer = transport.DefaultDialer
 			}
-			// dns server for direct
-			ctx := inbound.ContextWithInboundTag(
-				log.With().Str("tag", "internal-dns-direct").Logger().WithContext(
-					context.Background()), "internal-dns-direct")
-			dis := pd.NewPacketDispatcher(ctx, h)
-			internalDnsDirect := idns.NewDnsServerConcurrent(idns.DnsServerConcurrentOption{
-				Name:       "internal-dns-direct",
-				RrCache:    idns.NewRrCache(idns.RrCacheSetting{}),
-				Handler:    h,
-				IPToDomain: ipToDomain,
-				Dispatcher: dis,
-			})
-			setDefaultNICNameservers(internalDnsDirect, dii, []mynet.AddressPort{
-				{
-					Address: mynet.CfDns4,
-					Port:    53,
-				},
-				{
-					Address: mynet.AliyunDns4,
-					Port:    53,
-				},
-			}, dailer)
-			ctx = inbound.ContextWithInboundTag(
-				log.With().Str("tag", "internal-dns-proxy").Logger().WithContext(
-					context.Background()), "internal-dns-proxy")
-			dis = pd.NewPacketDispatcher(ctx, h,
-				// pd.WithRequestTimeout(time.Second*4),
-				pd.WithResponseTimeout(time.Second*4),
-				pd.WithLinkLifetime(time.Minute*5),
-			)
-			internalDndProxy := idns.NewDnsServerConcurrent(idns.DnsServerConcurrentOption{
-				Name:    "internal-dns-proxy",
-				RrCache: idns.NewRrCache(idns.RrCacheSetting{Duration: 3600}),
-				NameserverAddrs: []mynet.AddressPort{
-					{
-						Address: mynet.CfDns4,
-						Port:    53,
-					},
-				},
-				Handler:    h,
-				Dispatcher: dis,
-			})
-			internalDns := idns.NewInternalDns(staticDnsServer, internalDnsDirect, internalDndProxy)
-			client.IPResolver = internalDns
 			// dns
 			var dnsServers []idns.DnsServer
 			var dnsRules []*idns.DnsRule
 			for _, dsConfig := range config.Dns.DnsServers {
-				ds, err := newDnsServer(dsConfig, h, ipToDomain, fc, client, dailer, internalDns, config.Dns.CacheDuration)
+				ds, err := newDnsServer(dsConfig, h, ipToDomain, fc, client, dailer,
+					internalDns, config.Dns.CacheDuration)
 				if err != nil {
 					return err
 				}
@@ -134,10 +168,6 @@ func NewDNS(config *configs.TmConfig, fc *Builder, client *client.Client) error 
 					DnsServers: []idns.DnsServer{&idns.DnsToDnsServer{Dns: dns}},
 				},
 			}
-
-			if err := fc.addComponent(internalDns); err != nil {
-				return err
-			}
 			if err := fc.addComponent(dns); err != nil {
 				return err
 			}
@@ -148,14 +178,11 @@ func NewDNS(config *configs.TmConfig, fc *Builder, client *client.Client) error 
 			return err
 		}
 	} else {
-		ipResolver := &idns.DnsResolver{
-			Resolver: net.DefaultResolver,
-		}
-		client.Dns = idns.NewDns(staticDnsServer, nil, nil)
-		client.IPResolver = ipResolver
-		client.IPResolverForRequestAddress = ipResolver
-		common.Must(fc.addComponent(ipResolver))
-		common.Must(fc.addComponent(client.Dns))
+		fc.requireFeature(func(internalDns *idns.InternalDns) {
+			client.Dns = idns.NewDns(staticDnsServer, nil, nil)
+			common.Must(fc.addComponent(client.Dns))
+			client.IPResolverForRequestAddress = internalDns
+		})
 	}
 
 	return nil

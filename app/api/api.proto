@@ -47,6 +47,7 @@ service Api {
   rpc Decode(DecodeRequest) returns (DecodeResponse);
   rpc Deploy(DeployRequest) returns (DeployResponse);
   rpc GenerateCert(GenerateCertRequest) returns (GenerateCertResponse);
+  rpc GenerateECH(GenerateECHRequest) returns (GenerateECHResponse);
   rpc GetCertDomain(GetCertDomainRequest) returns (GetCertDomainResponse);
   rpc AddInbound(AddInboundRequest) returns (AddInboundResponse);
   rpc UploadLog(UploadLogRequest) returns (UploadLogResponse);
@@ -361,6 +362,14 @@ message GenerateX25519KeyPairRequest {}
 message GenerateX25519KeyPairResponse {
   string pub = 1;
   string pri = 2;
+}
+
+message GenerateECHRequest {
+  string domain = 1;
+}
+message GenerateECHResponse {
+  bytes config = 1;
+  bytes key = 2;
 }
 
 message StartMacSystemProxyRequest {

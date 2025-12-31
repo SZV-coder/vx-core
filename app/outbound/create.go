@@ -47,8 +47,8 @@ type HandlerConfig struct {
 	Policy        *policy.Policy
 	// for node domain
 	IPResolver                  i.IPResolver
+	EchResolver                 i.ECHResolver
 	IPResolverForRequestAddress i.IPResolver
-	DnsServer                   i.ECHResolver
 	RejectQuic                  bool
 }
 
@@ -59,6 +59,7 @@ func NewHandler(config *HandlerConfig) (i.Outbound, error) {
 			DialerFactory:               config.DialerFactory,
 			Policy:                      config.Policy,
 			IPResolver:                  config.IPResolver,
+			ECHResolver:                 config.EchResolver,
 			IPResolverForRequestAddress: config.IPResolverForRequestAddress,
 			RejectQuic:                  config.RejectQuic,
 		})
@@ -67,10 +68,10 @@ func NewHandler(config *HandlerConfig) (i.Outbound, error) {
 			ChainHandlerConfig:          config.GetChain(),
 			Policy:                      config.Policy,
 			IPResolver:                  config.IPResolver,
+			EchResolver:                 config.EchResolver,
 			DF:                          config.DialerFactory,
 			IPResolverForRequestAddress: config.IPResolverForRequestAddress,
 			RejectQuic:                  config.RejectQuic,
-			DnsServer:                   config.DnsServer,
 		})
 	}
 }
@@ -80,11 +81,11 @@ type Config struct {
 	DialerFactory transport.DialerFactory
 	Policy        i.TimeoutSetting
 	// some outbound require it to lookup server addresses
-	IPResolver i.IPResolver
+	IPResolver  i.IPResolver
+	ECHResolver i.ECHResolver
 	// some outbounds need it to lookup ips of request addresses
 	IPResolverForRequestAddress i.IPResolver
-	//
-	RejectQuic bool
+	RejectQuic                  bool
 }
 
 // TODO: Validate config
@@ -106,11 +107,13 @@ func NewOutHandler(config *Config) (i.Outbound, error) {
 	}
 
 	if _, ok := m.(*proxyconfigs.FreedomConfig); ok {
-		dialer, err := df.GetDialer(create.TransportConfigToMemoryConfig(config.Transport, nil, nil))
+		dialer, err := df.GetDialer(
+			create.TransportConfigToMemoryConfig(config.Transport, nil, nil, config.ECHResolver))
 		if err != nil {
 			return nil, err
 		}
-		pl, err := df.GetPacketListener(create.TransportConfigToMemoryConfig(config.Transport, nil, nil))
+		pl, err := df.GetPacketListener(
+			create.TransportConfigToMemoryConfig(config.Transport, nil, nil, config.ECHResolver))
 		if err != nil {
 			return nil, err
 		}
@@ -128,7 +131,7 @@ func NewOutHandler(config *Config) (i.Outbound, error) {
 
 	// dialer
 	transportConfig := create.TransportConfigToMemoryConfig(config.Transport,
-		readCounter, writeCounter)
+		readCounter, writeCounter, config.ECHResolver)
 	transportConfig.Address = address
 	transportConfig.PortSelector = sp
 	transportConfig.DomainStrategy = domain.DomainStrategy(config.DomainStrategy)
@@ -224,7 +227,7 @@ func NewOutHandler(config *Config) (i.Outbound, error) {
 			}
 		}
 		lis, _ := df.GetPacketListener(create.TransportConfigToMemoryConfig(config.Transport,
-			readCounter, writeCounter))
+			readCounter, writeCounter, config.ECHResolver))
 		if ipr == nil {
 			ipr = &dns.DnsResolver{}
 		}
