@@ -19,7 +19,7 @@ import (
 
 // VmessConfig represents a Vmess protocol configuration
 type VmessConfig struct {
-	V    string      `json:"v,omitempty"`
+	V    json.Number `json:"v,omitempty"`
 	PS   string      `json:"ps,omitempty"`
 	Add  string      `json:"add"`
 	Port json.Number `json:"port"`
