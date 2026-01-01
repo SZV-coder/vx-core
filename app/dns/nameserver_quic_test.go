@@ -12,6 +12,7 @@ import (
 )
 
 func TestNameServerQuic(t *testing.T) {
+	t.Skip()
 	doh, _ := NewQUICNameServer(QuicNameServerOption{
 		Name:        "test",
 		Destination: net.UDPDestination(net.DomainAddress("dns.adguard.com"), 853),

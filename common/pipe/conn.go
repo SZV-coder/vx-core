@@ -88,14 +88,14 @@ func (l *LinkConn) Write(b []byte) (n int, err error) {
 	return n, nil
 }
 
-func (l *LinkConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
-	n, err = l.Read(p)
-	return n, l.remoteAddr, err
-}
+// func (l *LinkConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
+// 	n, err = l.Read(p)
+// 	return n, l.remoteAddr, err
+// }
 
-func (l *LinkConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
-	return l.Write(p)
-}
+// func (l *LinkConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
+// 	return l.Write(p)
+// }
 
 func (l *LinkConn) Close() error {
 	l.link.Close()
