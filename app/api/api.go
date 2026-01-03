@@ -156,7 +156,16 @@ func StartApiServer(config *ApiServerConfig, options ...ApiOption) (*Api, error)
 	api.db = db
 
 	// in android, if app is added to vpn black list, all dns queries does not go through tun.
-
+	nameServersDirect := []net.AddressPort{
+		{
+			Address: net.AliyunDns4,
+			Port:    53,
+		},
+		{
+			Address: net.CfDns4,
+			Port:    53,
+		},
+	}
 	if config.BindToDefaultNic {
 		if api.mon == nil {
 			mon, err := tun.NewInterfaceMonitor(config.TunName)
@@ -171,19 +180,10 @@ func StartApiServer(config *ApiServerConfig, options ...ApiOption) (*Api, error)
 		}
 
 		dialer := transport.NewBindToDefaultNICDialer(api.mon, &dlhelper.SocketSetting{})
-		nameServersDirect := []net.AddressPort{
-			{
-				Address: net.AliyunDns4,
-				Port:    53,
-			},
-			{
-				Address: net.CfDns4,
-				Port:    53,
-			},
-		}
 		dnsServer1 := idns.NewDnsServerSerial(nameServersDirect, dialer, nil)
-		api.dnsServer = idns.NewDnsServerToResolver(dnsServer1)
-		api.ipResolver = idns.NewDnsServerToResolver(dnsServer1)
+		resolver := idns.NewDnsServerToResolver(dnsServer1)
+		api.dnsServer = resolver
+		api.ipResolver = resolver
 		api.dialFactory = transport.NewDialerFactoryImp(transport.DialerFactoryOption{
 			BindToDefaultNIC:        true,
 			IpResolver:              api.ipResolver,
@@ -191,8 +191,13 @@ func StartApiServer(config *ApiServerConfig, options ...ApiOption) (*Api, error)
 		})
 		dnsServer1.Start()
 	} else {
-		api.ipResolver = &idns.DnsResolver{}
+		dialer := transport.DefaultDialer
+		dnsServer1 := idns.NewDnsServerSerial(nameServersDirect, dialer, nil)
+		resolver := idns.NewDnsServerToResolver(dnsServer1)
+		api.dnsServer = resolver
+		api.ipResolver = resolver
 		api.dialFactory = transport.DefaultDialerFactory()
+		dnsServer1.Start()
 	}
 
 	RegisterApiServer(server, api)
