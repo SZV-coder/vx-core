@@ -6,6 +6,7 @@ message UserConfig {
   string id = 1;
   uint32 user_level = 2;
   string secret = 3;
+  string service_name = 4;
 }
 
 message UserManagerConfig { repeated UserConfig users = 1; }

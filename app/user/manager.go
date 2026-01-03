@@ -19,15 +19,17 @@ type User struct {
 	uuid     string
 	level    uint32
 	secret   string
+	service  string
 	counter  atomic.Uint64
 	prefexes set.Set[string]
 }
 
-func NewUser(uid string, level uint32, secret string) *User {
+func NewUser(uid string, level uint32, secret string, service string) *User {
 	return &User{
 		uuid:     uid,
 		level:    level,
 		secret:   secret,
+		service:  service,
 		prefexes: set.NewSet[string](),
 	}
 }
@@ -42,6 +44,10 @@ func (u *User) Level() uint32 {
 
 func (u *User) Secret() string {
 	return u.secret
+}
+
+func (u *User) Service() string {
+	return u.service
 }
 
 func (u *User) Counter() *atomic.Uint64 {
@@ -70,6 +76,7 @@ func (m *Manager) AddUser(u *User) {
 	if exsiting, ok := m.Users[u.uuid]; ok {
 		exsiting.level = u.level
 		exsiting.secret = u.secret
+		exsiting.service = u.service
 		return
 	}
 	m.Users[u.uuid] = u

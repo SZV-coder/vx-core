@@ -11,7 +11,7 @@ import (
 )
 
 func UserConfigToUser(config *configs.UserConfig) (*user.User, error) {
-	return user.NewUser(config.Id, config.UserLevel, config.Secret), nil
+	return user.NewUser(config.Id, config.UserLevel, config.Secret, config.ServiceName), nil
 }
 
 func ShadowsocksAccountToMemoryAccount(account *proxyconfigs.ShadowsocksAccount) (*shadowsocks.MemoryAccount, error) {

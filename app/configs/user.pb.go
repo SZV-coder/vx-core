@@ -20,6 +20,7 @@ type UserConfig struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserLevel     uint32                 `protobuf:"varint,2,opt,name=user_level,json=userLevel,proto3" json:"user_level,omitempty"`
 	Secret        string                 `protobuf:"bytes,3,opt,name=secret,proto3" json:"secret,omitempty"`
+	ServiceName   string                 `protobuf:"bytes,4,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -75,6 +76,13 @@ func (x *UserConfig) GetSecret() string {
 	return ""
 }
 
+func (x *UserConfig) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
 type UserManagerConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Users         []*UserConfig          `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
@@ -123,13 +131,14 @@ var File_protos_user_proto protoreflect.FileDescriptor
 
 const file_protos_user_proto_rawDesc = "" +
 	"\n" +
-	"\x11protos/user.proto\x12\x01x\"S\n" +
+	"\x11protos/user.proto\x12\x01x\"v\n" +
 	"\n" +
 	"UserConfig\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
 	"user_level\x18\x02 \x01(\rR\tuserLevel\x12\x16\n" +
-	"\x06secret\x18\x03 \x01(\tR\x06secret\"8\n" +
+	"\x06secret\x18\x03 \x01(\tR\x06secret\x12!\n" +
+	"\fservice_name\x18\x04 \x01(\tR\vserviceName\"8\n" +
 	"\x11UserManagerConfig\x12#\n" +
 	"\x05users\x18\x01 \x03(\v2\r.x.UserConfigR\x05usersB*Z(github.com/5vnetwork/vx-core/app/configsb\x06proto3"
 
