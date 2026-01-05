@@ -428,8 +428,10 @@ func parseHysteria(mapping map[string]any, name string) (*configs.OutboundHandle
 		ports = sub.TryParsePorts(portVal)
 	}
 	hysteriaConfig := &proxy.Hysteria2ClientConfig{
-		Auth:      mapping["password"].(string),
 		Bandwidth: &proxy.BandwidthConfig{},
+	}
+	if auth, ok := mapping["password"].(string); ok {
+		hysteriaConfig.Auth = auth
 	}
 	if mapping["obfs"] == "salamander" {
 		hysteriaConfig.Obfs = &proxy.ObfsConfig{
