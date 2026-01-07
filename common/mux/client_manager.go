@@ -73,6 +73,7 @@ func (m *ClientManager) HandleReaderWriter(ctx context.Context, dst net.Destinat
 		}
 		m.clients = append(m.clients, client)
 	}
+	m.clientsAccessLock.Unlock()
 
 	sm := &clientSession{
 		ID:              uint16(client.count.Add(1)),
@@ -86,7 +87,6 @@ func (m *ClientManager) HandleReaderWriter(ctx context.Context, dst net.Destinat
 	defer client.RemoveSession(sm)
 	log.Ctx(ctx).Debug().Uint16("mux_sid", sm.ID).Msg("new mux session")
 
-	m.clientsAccessLock.Unlock()
 	defer m.tryRetire(client)
 
 	go client.merge(ctx, dst, sm)
@@ -103,7 +103,6 @@ func (m *ClientManager) HandleReaderWriter(ctx context.Context, dst net.Destinat
 			leftToRight = true
 		case <-sm.rightToLeftDone.Wait():
 			rightToLeft = true
-			return nil
 		}
 	}
 }

@@ -94,9 +94,6 @@ func (m *client) IsEmpty() bool {
 
 // has reached maxConnection
 func (m *client) IsClosing() bool {
-	m.RLock()
-	defer m.RUnlock()
-
 	if m.MaxConnection > 0 && m.count.Load() >= m.MaxConnection {
 		return true
 	}
