@@ -89,29 +89,40 @@ func (m *ClientManager) HandleReaderWriter(ctx context.Context, dst net.Destinat
 
 	defer m.tryRetire(client)
 
+	// TODO: reduce one goroutine
 	go client.merge(ctx, dst, sm)
 
-	var leftToRight, rightToLeft bool
+	// Wait for both directions to complete or an error
+	leftToRightChan := sm.leftToRightDone.Wait()
+	rightToLeftChan := sm.rightToLeftDone.Wait()
+
+	var leftToRightDone, rightToLeftDone bool
+
 	for {
-		if leftToRight && rightToLeft {
+		// Check if both are done first to avoid unnecessary select
+		if leftToRightDone && rightToLeftDone {
 			return nil
 		}
+
 		select {
 		case err := <-sm.errChan:
 			return err
-		case <-sm.leftToRightDone.Wait():
-			leftToRight = true
-		case <-sm.rightToLeftDone.Wait():
-			rightToLeft = true
+		case <-leftToRightChan:
+			leftToRightDone = true
+			// Set to nil to prevent tight loop - nil channels block in select
+			leftToRightChan = nil
+		case <-rightToLeftChan:
+			rightToLeftDone = true
+			// Set to nil to prevent tight loop - nil channels block in select
+			rightToLeftChan = nil
 		}
 	}
 }
 
 func (p *ClientManager) tryRetire(client *client) {
-	p.clientsAccessLock.Lock()
-	defer p.clientsAccessLock.Unlock()
-
 	if client.IsEmpty() && client.IsClosing() {
+		p.clientsAccessLock.Lock()
+		defer p.clientsAccessLock.Unlock()
 		for i, w := range p.clients {
 			if w == client {
 				p.clients = append(p.clients[:i], p.clients[i+1:]...)
