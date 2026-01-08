@@ -105,6 +105,9 @@ func (m *ClientManager) HandleReaderWriter(ctx context.Context, dst net.Destinat
 		}
 
 		select {
+		case <-ctx.Done():
+			sm.notifyPeerSessionError()
+			return ctx.Err()
 		case err := <-sm.errChan:
 			return err
 		case <-leftToRightChan:

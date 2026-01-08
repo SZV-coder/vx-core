@@ -37,7 +37,7 @@ func TestUserManager(t *testing.T) {
 	}
 
 	// Test AddUser
-	user1 := user.NewUser("user1", 1, "secret1")
+	user1 := user.NewUser("user1", 1, "secret1", "")
 	manager.AddUser(user1)
 	if manager.Number() != 1 {
 		t.Errorf("Expected 1 user, got %d", manager.Number())
@@ -56,7 +56,7 @@ func TestUserManager(t *testing.T) {
 	}
 
 	// Test AddUser with existing uid (should update)
-	user1Updated := user.NewUser("user1", 2, "secret2")
+	user1Updated := user.NewUser("user1", 2, "secret2", "")
 	manager.AddUser(user1Updated)
 	if manager.Number() != 1 {
 		t.Errorf("Expected 1 user after update, got %d", manager.Number())
@@ -70,8 +70,8 @@ func TestUserManager(t *testing.T) {
 	}
 
 	// Test multiple users
-	user2 := user.NewUser("user2", 1, "secret2")
-	user3 := user.NewUser("user3", 1, "secret3")
+	user2 := user.NewUser("user2", 1, "secret2", "")
+	user3 := user.NewUser("user3", 1, "secret3", "")
 	manager.AddUser(user2)
 	manager.AddUser(user3)
 	if manager.Number() != 3 {
@@ -777,7 +777,7 @@ func TestUserManagerConcurrency(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		i := i
 		errg.Go(func() error {
-			user := user.NewUser(fmt.Sprintf("user%d", i), uint32(i), fmt.Sprintf("secret%d", i))
+			user := user.NewUser(fmt.Sprintf("user%d", i), uint32(i), fmt.Sprintf("secret%d", i), "")
 			manager.AddUser(user)
 			return nil
 		})
@@ -799,7 +799,7 @@ func TestUserManagerConcurrency(t *testing.T) {
 	for i := 0; i < 50; i++ {
 		i := i
 		errg.Go(func() error {
-			user := user.NewUser(fmt.Sprintf("user%d", i), uint32(i+100), fmt.Sprintf("newsecret%d", i))
+			user := user.NewUser(fmt.Sprintf("user%d", i), uint32(i+100), fmt.Sprintf("newsecret%d", i), "")
 			manager.AddUser(user)
 			return nil
 		})
@@ -839,7 +839,7 @@ func TestUserManagerConcurrency(t *testing.T) {
 
 // TestUserCounterOperations tests user counter increments
 func TestUserCounterOperations(t *testing.T) {
-	user := user.NewUser("testuser", 1, "secret")
+	user := user.NewUser("testuser", 1, "secret", "")
 
 	counter := user.Counter()
 	if counter.Load() != 0 {
@@ -981,7 +981,7 @@ func TestUserManagerEdgeCases(t *testing.T) {
 	manager.RemoveUser("nonexistent") // Should not panic
 
 	// Test with empty user ID
-	emptyUser := user.NewUser("", 1, "secret")
+	emptyUser := user.NewUser("", 1, "secret", "")
 	manager.AddUser(emptyUser)
 	retrieved := manager.GetUser("")
 	if retrieved == nil {
@@ -989,7 +989,7 @@ func TestUserManagerEdgeCases(t *testing.T) {
 	}
 
 	// Test with empty secret
-	userEmptySecret := user.NewUser("user1", 1, "")
+	userEmptySecret := user.NewUser("user1", 1, "", "")
 	manager.AddUser(userEmptySecret)
 	retrieved = manager.GetUser("user1")
 	if retrieved == nil || retrieved.Secret() != "" {
@@ -997,11 +997,11 @@ func TestUserManagerEdgeCases(t *testing.T) {
 	}
 
 	// Test update with same uid
-	original := user.NewUser("updatetest", 1, "secret1")
+	original := user.NewUser("updatetest", 1, "secret1", "")
 	manager.AddUser(original)
 	countBefore := manager.Number()
 
-	updated := user.NewUser("updatetest", 2, "secret2")
+	updated := user.NewUser("updatetest", 2, "secret2", "")
 	manager.AddUser(updated)
 	countAfter := manager.Number()
 
@@ -1015,7 +1015,7 @@ func TestUserManagerEdgeCases(t *testing.T) {
 	}
 
 	// Test counter edge cases
-	testUser := user.NewUser("countertest", 1, "secret")
+	testUser := user.NewUser("countertest", 1, "secret", "")
 	counter := testUser.Counter()
 
 	// Test large increment
@@ -1025,7 +1025,7 @@ func TestUserManagerEdgeCases(t *testing.T) {
 	}
 
 	// Test prefix edge cases
-	prefixUser := user.NewUser("prefixtest", 1, "secret")
+	prefixUser := user.NewUser("prefixtest", 1, "secret", "")
 
 	// Add same prefix multiple times
 	prefixUser.AddPrefix("prefix1")
