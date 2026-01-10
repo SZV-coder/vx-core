@@ -95,11 +95,7 @@ func NewDNS(config *configs.TmConfig, fc *Builder, client *client.Client) error 
 		ctx = inbound.ContextWithInboundTag(
 			log.With().Str("tag", "internal-dns-proxy").Logger().WithContext(
 				context.Background()), "internal-dns-proxy")
-		dis = pd.NewPacketDispatcher(ctx, h,
-			// pd.WithRequestTimeout(time.Second*4),
-			pd.WithResponseTimeout(time.Second*4),
-			pd.WithLinkLifetime(time.Minute*5),
-		)
+		dis0 := pd.NewPacketDispatcher0(ctx, h)
 		internalDndProxy := idns.NewDnsServerConcurrent(idns.DnsServerConcurrentOption{
 			Name:    "internal-dns-proxy",
 			RrCache: idns.NewRrCache(idns.RrCacheSetting{Duration: 3600}),
@@ -110,7 +106,7 @@ func NewDNS(config *configs.TmConfig, fc *Builder, client *client.Client) error 
 				},
 			},
 			Handler:    h,
-			Dispatcher: dis,
+			Dispatcher: dis0,
 		})
 		internalDns := idns.NewInternalDns(staticDnsServer,
 			internalDnsDirect, internalDndProxy)
@@ -224,12 +220,8 @@ func newDnsServer(config *configs.DnsServerConfig, handler i.Handler, ipToDomain
 		}
 		ctx := inbound.ContextWithInboundTag(log.With().Str("tag", config.Name).Logger().WithContext(
 			context.Background()), config.Name)
-		dis := pd.NewPacketDispatcher(ctx,
-			handler,
-			// pd.WithRequestTimeout(time.Second*4),
-			pd.WithResponseTimeout(time.Second*4),
-			pd.WithLinkLifetime(time.Minute*5),
-		)
+		dis := pd.NewPacketDispatcher0(ctx,
+			handler)
 
 		ns := idns.NewDnsServerConcurrent(idns.DnsServerConcurrentOption{
 			Name:            config.Name,
